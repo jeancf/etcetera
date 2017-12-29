@@ -1,12 +1,14 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
+# Maintainer JC Francois <jc.francois@gmail.com>
+
 import os
 import sys
 import argparse
 import configparser
 from etcetera_mod import *
 
-# Check that we have root privilieges
+# Check that we have root privileges
 if os.geteuid() != 0:
     print('You do not have elevated privileges. Please run etcetera as root')
     sys.exit(-1)
@@ -19,7 +21,17 @@ cmdline.add_argument('-m', '--manage', metavar='filename', action='store', help=
 cmdline.add_argument('-u', '--unmanage', metavar='filename', action='store', help='return file to /etc')
 
 # Parse command line arguments
-args = cmdline.parse_args()
+args = vars(cmdline.parse_args()) # convert namespace object to dictionary
 
 # DEBUG
 print(args)
+
+# TODO: Respond to commands
+if args['list'] == True:
+    print('TODO: DISPLAY LIST')
+elif args['manage'] != None:
+    print('TODO: MANAGE ' + args['manage'])
+elif args['unmanage'] != None:
+    print('TODO: UNMANAGE ' + args['unmanage'])
+else:
+    print('Check available commands with "etcetera -h"')
