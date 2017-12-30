@@ -14,11 +14,14 @@ if os.geteuid() != 0:
     sys.exit(-1)
 
 # Configure command line arguments parser
-cmdline = argparse.ArgumentParser(prog='etcetera', description='Manage config files with style.')
+cmdline = argparse.ArgumentParser(prog='etcetera', description='Manage config files with wisdom.')
 # parser.add_argument('filename', nargs='?', action='store', help='Name of file to manage')
-cmdline.add_argument('-l', '--list', action='store_true', help='List files managed by etcetera')
-cmdline.add_argument('-m', '--manage', metavar='filename', action='store', help='take over file and replace by symlink in /etc')
-cmdline.add_argument('-u', '--unmanage', metavar='filename', action='store', help='return file to /etc')
+cmdline.add_argument('-l', '--list', action='store_true',
+                     help='List files managed by etcetera')
+cmdline.add_argument('-m', '--manage', metavar='filename', action='store',
+                     help='Full path of file to take over and replace by symlink')
+cmdline.add_argument('-u', '--unmanage', metavar='filename', action='store',
+                     help='Full path of file to return to original location instead of symlink')
 
 # Parse command line arguments
 args = vars(cmdline.parse_args()) # convert namespace object to dictionary
@@ -26,12 +29,12 @@ args = vars(cmdline.parse_args()) # convert namespace object to dictionary
 # DEBUG
 print(args)
 
-# TODO: Respond to commands
+# Respond to commands
 if args['list'] == True:
-    print('TODO: DISPLAY LIST')
+    display_list()
 elif args['manage'] != None:
-    print('TODO: MANAGE ' + args['manage'])
+    manage_file(args['manage'])
 elif args['unmanage'] != None:
-    print('TODO: UNMANAGE ' + args['unmanage'])
+    unmanage_file(args['unmanage'])
 else:
     print('Check available commands with "etcetera -h"')
