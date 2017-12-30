@@ -13,18 +13,29 @@ Take over file for tracking.
 * Replace file in original location by a symlink to the file in shadow directory
 * Save copy of file with .etc_orig extension
 
+**DONE**
+
 ### --unmanage FILENAME ###
 
 Reinstate file in its original location.
 
 * Replace symlink in original location by file from shadow directory
 * Delete all related files in the shadow directory
+* Delete empty directories in the path within the shadow directory
 
 ### --list ###
 
 List all files currently managed by etcetera
 
 ## Version 0.2 ##
+
+### --manage FILENAME ###
+
+Support specifying directories instead of individual files (e.g. `/etc/ssh`)
+
+### --unmanage FILENAME ###
+
+Support specifying directories instead of individual files (e.g. `/etc/ssh`)
 
 ### --rev FILENAME ###
 
@@ -35,7 +46,7 @@ Can be invoked before or after modification of file.
 
 Discard all changes made since --manage or --rev was called last.
 
-### --status ###
+### --info ###
 
 Provide useful information about etcetera configuration and state
 
@@ -43,11 +54,14 @@ Provide useful information about etcetera configuration and state
 * Original locations being monitored
 * Location of shadow directory
 * Max number of backups preserved for each file
-* Whether .orig files are preserved
+* Whether `.orig` files are preserved
+* Location of configuration file
 
 ### logging to journal
 
 Log to systemd journal using systemd.journal python module
+
+### Colored output
 
 ## Version 0.3 ##
 

@@ -11,7 +11,7 @@ from etcetera_mod import *
 
 # Check that we have root privileges
 if os.geteuid() != 0:
-    print('You do not have elevated privileges. Please run etcetera as root')
+    print('ERROR: You do not have elevated privileges. Try "sudo etcetera"')
     sys.exit(-1)
 
 # Configure command line arguments parser
@@ -28,14 +28,22 @@ cmdline.add_argument('-u', '--unmanage', metavar='filename', action='store',
 args = vars(cmdline.parse_args()) # convert namespace object to dictionary
 
 # DEBUG
-print(args)
+# print(args)
+
+# Parse config file
+config = configparser.ConfigParser()
+config.read('etcetera.conf')
+
+# DEBUG
+# for key in config['MAIN']:
+#     print(str(key) + " = " + str(config['MAIN'][key]))
 
 # Respond to commands
 if args['list']:
-    display_list()
+    display_list(config)
 elif args['manage'] is not None:
-    manage_file(args['manage'])
+    manage_file(config, args['manage'])
 elif args['unmanage'] is not None:
-    unmanage_file(args['unmanage'])
+    unmanage_file(config, args['unmanage'])
 else:
     print('Check available commands with "etcetera -h"')
