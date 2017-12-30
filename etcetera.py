@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
+# Command line executable
 # Maintainer JC Francois <jc.francois@gmail.com>
 
 import os
@@ -30,11 +31,11 @@ args = vars(cmdline.parse_args()) # convert namespace object to dictionary
 print(args)
 
 # Respond to commands
-if args['list'] == True:
+if args['list']:
     display_list()
-elif args['manage'] != None:
+elif args['manage'] is not None:
     manage_file(args['manage'])
-elif args['unmanage'] != None:
+elif args['unmanage'] is not None:
     unmanage_file(args['unmanage'])
 else:
     print('Check available commands with "etcetera -h"')

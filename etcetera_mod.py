@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+# Library of commands and support functions
 # Maintainer JC Francois <jc.francois@gmail.com>
 
 def validate_filename():
     # TODO Check if the filename is under ORIGINAL_LOCATION
     # TODO Check if the filename is in blacklist
-
+    print('TODO: VALIDATE FILENAME')
 
 def display_list():
     '''
