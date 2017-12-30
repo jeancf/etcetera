@@ -77,3 +77,16 @@ def unmanage_file(config, filename):
     :return: 
     """
     print('TODO: UNMANAGE ' + filename)
+
+
+def remove_empty_directories(directory):
+    """
+    Remove empty directories as far up full_path as possible
+    :param directory: Full path of directory to consider
+    :return:
+    """
+    path = directory
+    while path != '/':
+        if len(os.listdir(path)) == 0:  # Directory is empty
+            os.rmdir(path)  # rmdir only works on empty directories
+        path = os.path.dirname(path)
