@@ -4,6 +4,7 @@
 
 import sys
 import os
+import glob
 import shutil
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -72,12 +73,39 @@ def unmanage_file(config, symlink):
     :param symlink:       Full path + name of the symlink to replace with file
     :return:
     """
-    # Check if file is in allowed original locations
+    # Check if symlink is in allowed original locations
     if not is_in_original_locations(config, symlink):
         print('ERROR: File is not in allowed original location')
         sys.exit(-1)
 
     # Check that the file is a symlink
+    if not os.path.islink(symlink):
+        print('ERROR: Argument is not a symlink')
+        sys.exit(-1)
+
+    # Check that the symlink points to the correct file in shadow location
+    shadow_file = config['MAIN']['SHADOW_LOCATION'].rstrip('/') + symlink
+    if os.path.realpath(symlink) != shadow_file:
+        print('ERROR: Symlink does not point to correct shadow file')
+        sys.exit(-1)
+
+    # Check that the corresponding shadow file exists
+    if not os.path.isfile(shadow_file):
+        print('ERROR: Shadow file does not exit')
+        sys.exit(-1)
+
+    # Delete symlink and replace it by shadow file in original location
+    os.remove(symlink)
+    os.rename(shadow_file, symlink)
+
+    # Delete all related files under shadow directory
+    for f in glob.glob(shadow_file + '*'):
+        os.remove(f)
+
+    # Delete potential empty folders after removal of files
+    remove_empty_directories(os.path.dirname(shadow_file))
+    print('SUCCESS: File restored in original location)
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 # Utils

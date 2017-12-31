@@ -35,7 +35,8 @@ Support specifying directories instead of individual files (e.g. `/etc/ssh`)
 
 ### --unmanage FILENAME ###
 
-Support specifying directories instead of individual files (e.g. `/etc/ssh`)
+* Support specifying directories instead of individual files (e.g. `/etc/ssh`)
+* Handle option to restore .orig file along with shadow file
 
 ### --rev FILENAME ###
 
@@ -57,14 +58,21 @@ Provide useful information about etcetera configuration and state
 * Whether `.orig` files are preserved
 * Location of configuration file
 
-### logging to journal
+### logging to journal ###
 
 Log to systemd journal using systemd.journal python module
 
-### Colored output
+### Colored output ###
 
-## Version 0.3 ##
+## Later ##
 
-### monitoring of file changes
+### ensure consistency of repository ### 
+
+* Verify that no symlinks are dead
+* Handle case where a location has been removed from MANAGED_LOCATIONS
+
+### Monitor file changes ###
 
 Use pyinotify module to monitor file changes and rev
+
+### Automate testing ###
