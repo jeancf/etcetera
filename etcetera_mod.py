@@ -45,7 +45,7 @@ def manage_file(config, original_file):
         print('ERROR: File does not exist')
         sys.exit(-1)
 
-    # Make sure file path exists in shadow location
+    # Create file path in shadow location if necessary
     shadow_file = config['MAIN']['SHADOW_LOCATION'].rstrip('/') + original_file
     shadow_path = os.path.dirname(shadow_file)
     os.makedirs(shadow_path, mode=0o755, exist_ok=True)
@@ -57,7 +57,7 @@ def manage_file(config, original_file):
 
     # Move original file to shadow path and create a copy with .orig extension if required
     os.rename(original_file, shadow_file)
-    if config['BEHAVIOR'].getboolean('STORE_ORIG'):
+    if config['BEHAVIOR'].getboolean('KEEP_ORIG'):
         shutil.copy2(shadow_file, shadow_file + '.orig')
 
     # Create symlink to shadow file in original location to replace original file
@@ -86,7 +86,7 @@ def unmanage_file(config, symlink):
     # Check that the symlink points to the correct file in shadow location
     shadow_file = config['MAIN']['SHADOW_LOCATION'].rstrip('/') + symlink
     if os.path.realpath(symlink) != shadow_file:
-        print('ERROR: Symlink does not point to correct shadow file')
+        print('ERROR: Symlink does not point to correct shadow file (names do not match)')
         sys.exit(-1)
 
     # Check that the corresponding shadow file exists
@@ -98,13 +98,17 @@ def unmanage_file(config, symlink):
     os.remove(symlink)
     os.rename(shadow_file, symlink)
 
+    # Optionally place a copy of .orig file in original location
+    if config['BEHAVIOR'].getboolean('RESTORE_ORIG') and os.path.isfile(shadow_file + '.orig'):
+        os.rename(shadow_file + '.orig', symlink + '.orig')
+
     # Delete all related files under shadow directory
     for f in glob.glob(shadow_file + '*'):
         os.remove(f)
 
     # Delete potential empty folders after removal of files
     remove_empty_directories(os.path.dirname(shadow_file))
-    print('SUCCESS: File restored in original location)
+    print('SUCCESS: File restored in original location and shadow content deleted')
 
 
 # ---------------------------------------------------------------------------------------------------------------------
