@@ -5,7 +5,11 @@
 import sys
 import os
 import shutil
-import time
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Commands
+# ---------------------------------------------------------------------------------------------------------------------
+
 
 def display_list(config):
     """
@@ -21,16 +25,10 @@ def manage_file(config, original_file):
     Move file from ORIGINAL_LOCATION to SHADOW_LOCATION and replace it by a symlink
     :param config:        Configuration object
     :param original_file: Full path + name of the file to take over
-                          By extension, can also be a directory (e.g. /etc/ssh/)
-    :return: 
+    :return:
     """
     # Check if file is in allowed original locations
-    locations = config['MAIN']['ORIGINAL_LOCATIONS'].split(' ')
-    valid = False
-    for loc in locations:
-        if loc != '' and original_file.startswith(loc):
-            valid = True
-    if not valid:
+    if not is_in_original_locations(config, original_file):
         print('ERROR: File is not in allowed original location')
         sys.exit(-1)
 
@@ -47,7 +45,6 @@ def manage_file(config, original_file):
         sys.exit(-1)
 
     # Make sure file path exists in shadow location
-    original_path = os.path.dirname(original_file)
     shadow_file = config['MAIN']['SHADOW_LOCATION'].rstrip('/') + original_file
     shadow_path = os.path.dirname(shadow_file)
     os.makedirs(shadow_path, mode=0o755, exist_ok=True)
@@ -62,21 +59,44 @@ def manage_file(config, original_file):
     if config['BEHAVIOR'].getboolean('STORE_ORIG'):
         shutil.copy2(shadow_file, shadow_file + '.orig')
 
-    # Delete original file and replace by symlink to shadow file in original location
+    # Create symlink to shadow file in original location to replace original file
     os.symlink(shadow_file, original_file)
 
     print('SUCCESS: File saved and replaced by symlink')
 
 
-def unmanage_file(config, filename):
+def unmanage_file(config, symlink):
     """
     Restore file from SHADOW_LOCATION to ORIGINAL_LOCATION
-    :param config:   Configuration object
-    :param filename: Full path + name of the file to restore
-                     By extension, can also be a directory (e.g. /etc/ssh/)
-    :return: 
+    :param config:        Configuration object
+    :param symlink:       Full path + name of the symlink to replace with file
+    :return:
     """
-    print('TODO: UNMANAGE ' + filename)
+    # Check if file is in allowed original locations
+    if not is_in_original_locations(config, symlink):
+        print('ERROR: File is not in allowed original location')
+        sys.exit(-1)
+
+    # Check that the file is a symlink
+
+# ---------------------------------------------------------------------------------------------------------------------
+# Utils
+# ---------------------------------------------------------------------------------------------------------------------
+
+
+def is_in_original_locations(config, file):
+    """
+    Verify is file is located in directory listed under ORIGINAL_LOCATIONS in config file
+    :param config:  Configuration object
+    :param file:    full path + name of file or symlink to check 
+    :return: True or False
+    """
+    locations = config['MAIN']['ORIGINAL_LOCATIONS'].split(' ')
+    valid = False
+    for loc in locations:
+        if loc != '' and file.startswith(loc):
+            valid = True
+    return valid
 
 
 def remove_empty_directories(directory):
