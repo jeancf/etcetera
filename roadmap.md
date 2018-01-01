@@ -22,10 +22,17 @@ Reinstate file in its original location.
 * Replace symlink in original location by file from shadow directory
 * Delete all related files in the shadow directory
 * Delete empty directories in the path within the shadow directory
+* Handle option to restore .orig file along with shadow file
+
+**DONE**
 
 ### --list ###
 
 List all files currently managed by etcetera
+
+**DONE**
+
+_________
 
 ## Version 0.2 ##
 
@@ -36,7 +43,6 @@ Support specifying directories instead of individual files (e.g. `/etc/ssh`)
 ### --unmanage FILENAME ###
 
 * Support specifying directories instead of individual files (e.g. `/etc/ssh`)
-* Handle option to restore .orig file along with shadow file
 
 ### --rev FILENAME ###
 
@@ -55,14 +61,12 @@ Provide useful information about etcetera configuration and state
 * Original locations being monitored
 * Location of shadow directory
 * Max number of backups preserved for each file
-* Whether `.orig` files are preserved
+* Whether `.ORIG` files are preserved
 * Location of configuration file
 
-### logging to journal ###
+### --status FILENAME ###
 
-Log to systemd journal using systemd.journal python module
-
-### Colored output ###
+Display the shadow files (.ORIG and .SAVE) of FILENAME
 
 ## Later ##
 
@@ -76,3 +80,15 @@ Log to systemd journal using systemd.journal python module
 Use pyinotify module to monitor file changes and rev
 
 ### Automate testing ###
+
+### logging to journal ###
+
+Log to systemd journal using systemd.journal python module
+
+### Colored output ###
+
+### Clarify vocabulary ###
+
+* manage/unmanage
+* original/shadow
+* rev/rollback
