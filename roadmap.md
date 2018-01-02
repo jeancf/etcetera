@@ -36,26 +36,32 @@ _________
 
 ## Version 0.2 ##
 
-### --manage FILENAME ###
+### Split etcetera_mod.py in `commands.py` and `functions.py` ###
 
-Support specifying directories instead of individual files (e.g. `/etc/ssh`)
+**DONE**
 
-### --unmanage FILENAME ###
+### Add functions in toolbox ###
 
-* Support specifying directories instead of individual files (e.g. `/etc/ssh`)
+**DONE**
 
-### --rev FILENAME ###
+### --commit FILENAME ###
 
-Increment version of file by taking a backup of the previous version (the one when --manage or --rev was called last).
+Increment version of file by taking a backup of the previous version (the one when --manage or --commit was called last).
 Can be invoked before or after modification of file.
 
 ### --rollback FILENAME ###
 
-Discard all changes made since --manage or --rev was called last.
+Discard all changes made since --manage or --commit was called last.
+
+### --status FILENAME ###
+
+* Check that symlink points to file with same name in shadow location
+* Mention if .ORIG file is available
+* List .SAVE files
 
 ### --info ###
 
-Provide useful information about etcetera configuration and state
+Provide useful information about etcetera configuration and state.
 
 * Number of managed files
 * Original locations being monitored
@@ -64,11 +70,15 @@ Provide useful information about etcetera configuration and state
 * Whether `.ORIG` files are preserved
 * Location of configuration file
 
-### --status FILENAME ###
-
-Display the shadow files (.ORIG and .SAVE) of FILENAME
-
 ## Later ##
+
+### --manage FILENAME ###
+
+Support specifying directories instead of individual files (e.g. `/etc/ssh`)
+
+### --unmanage FILENAME ###
+
+* Support specifying directories instead of individual files (e.g. `/etc/ssh`)
 
 ### ensure consistency of repository ### 
 
@@ -92,3 +102,9 @@ Log to systemd journal using systemd.journal python module
 * manage/unmanage
 * original/shadow
 * rev/rollback
+
+### implement doctest ###
+
+Start with toolbox functions
+
+Display the shadow files (.ORIG and .SAVE) of FILENAME
