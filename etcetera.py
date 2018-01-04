@@ -3,11 +3,11 @@
 # Command line executable
 # Maintainer JC Francois <jc.francois@gmail.com>
 
-import os
-import sys
 import argparse
 import configparser
-from etcetera_mod import *
+
+from commands import *
+
 
 # Check that we have root privileges
 if os.geteuid() != 0:

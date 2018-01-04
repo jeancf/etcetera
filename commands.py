@@ -7,10 +7,7 @@ import os
 import glob
 import shutil
 
-# ---------------------------------------------------------------------------------------------------------------------
-# Commands
-# ---------------------------------------------------------------------------------------------------------------------
-
+from toolbox import *
 
 def display_list(config):
     """
@@ -32,6 +29,7 @@ def display_list(config):
                     if os.readlink(origin) == shadow_file:
                         print(origin)
 
+
 def manage_file(config, original_file):
     """
     Move file from ORIGINAL_LOCATION to SHADOW_LOCATION and replace it by a symlink
@@ -45,11 +43,9 @@ def manage_file(config, original_file):
         sys.exit(-1)
 
     # Check that file is not is blacklist
-    blacklist = config['MAIN']['BLACKLIST'].split(' ')
-    for blacklisted in blacklist:
-        if original_file == blacklisted:
-            print('ERROR: File is blacklisted in etcetera configuration')
-            sys.exit(-1)
+    if is_in_blacklist(config, original_file):
+        print('ERROR: File is blacklisted directly or in a blacklisted location in etcetera.conf')
+        sys.exit(-1)
 
     # Check that the file exists
     if not os.path.isfile(original_file):
@@ -57,7 +53,7 @@ def manage_file(config, original_file):
         sys.exit(-1)
 
     # Create file path in shadow location if necessary
-    shadow_file = config['MAIN']['SHADOW_LOCATION'].rstrip('/') + original_file
+    shadow_file = os.path.join(config['MAIN']['SHADOW_LOCATION'] + original_file)
     shadow_path = os.path.dirname(shadow_file)
     os.makedirs(shadow_path, mode=0o755, exist_ok=True)
 
@@ -95,9 +91,9 @@ def unmanage_file(config, symlink):
         sys.exit(-1)
 
     # Check that the symlink points to the correct file in shadow location
-    shadow_file = config['MAIN']['SHADOW_LOCATION'].rstrip('/') + symlink
+    shadow_file = os.path.join(config['MAIN']['SHADOW_LOCATION'], symlink)
     if os.path.realpath(symlink) != shadow_file:
-        print('ERROR: Symlink does not point to correct shadow file (names do not match)')
+        print('ERROR: Symlink does not point to correct shadow file')
         sys.exit(-1)
 
     # Check that the corresponding shadow file exists
@@ -121,35 +117,3 @@ def unmanage_file(config, symlink):
     remove_empty_directories(os.path.dirname(shadow_file))
     print('SUCCESS: File restored in original location and shadow content deleted')
 
-
-# ---------------------------------------------------------------------------------------------------------------------
-# Utils
-# ---------------------------------------------------------------------------------------------------------------------
-
-
-def is_in_original_locations(config, file):
-    """
-    Verify is file is located in directory listed under ORIGINAL_LOCATIONS in config file
-    :param config:  Configuration object
-    :param file:    full path + name of file or symlink to check 
-    :return: True or False
-    """
-    locations = config['MAIN']['ORIGINAL_LOCATIONS'].split(' ')
-    valid = False
-    for loc in locations:
-        if loc != '' and file.startswith(loc):
-            valid = True
-    return valid
-
-
-def remove_empty_directories(directory):
-    """
-    Remove empty directories as far up full_path as possible
-    :param directory: Full path of directory to consider
-    :return:
-    """
-    path = directory
-    while path != '/':
-        if len(os.listdir(path)) == 0:  # Directory is empty
-            os.rmdir(path)  # rmdir only works on empty directories
-        path = os.path.dirname(path)
