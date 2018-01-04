@@ -44,20 +44,29 @@ _________
 
 **DONE**
 
+### --manage FILENAME ###
+
+* Add .COMMIT version of the file
+
 ### --commit FILENAME ###
 
-Increment version of file by taking a backup of the previous version (the one when --manage or --commit was called last).
-Can be invoked before or after modification of file.
+* Verify that there are differences between file and its .COMMIT (toolbox function)
+* If there are, save copy of file under `.COMMIT` and `.COMMIT[timestamp]`
+* If there aren't, tell the user
+* Count the number of `.COMMIT[timestamp]` files present. If there are more than allowed
 
 ### --rollback FILENAME ###
 
 Discard all changes made since --manage or --commit was called last.
 
+* Overwrite managed file with its .COMMIT version
+
 ### --status FILENAME ###
 
 * Check that symlink points to file with same name in shadow location
+* Mention if there are uncommitted changes to file
 * Mention if .ORIG file is available
-* List .SAVE files
+* List .COMMIT and .ORIG files 
 
 ### --info ###
 
@@ -79,6 +88,15 @@ Support specifying directories instead of individual files (e.g. `/etc/ssh`)
 ### --unmanage FILENAME ###
 
 * Support specifying directories instead of individual files (e.g. `/etc/ssh`)
+
+### --commit FILENAME COMMENT ###
+
+Capture and save a comment string to display when showing list of commits
+
+### --rollback FILENAME ###
+
+* If multiple commits are available, propose list to pick from
+* Display comment alongside list of available commits to rollback
 
 ### ensure consistency of repository ### 
 
@@ -107,4 +125,10 @@ Log to systemd journal using systemd.journal python module
 
 Start with toolbox functions
 
-Display the shadow files (.ORIG and .SAVE) of FILENAME
+### Option to keep or delete shadow files after call to --unmanage ####
+
+It may be difficult to handle a subsequent call to --manage. What to do with .ORIG?
+
+    # Delete all shadow files after restoration into original location when calling --unmanage (true/false)
+    Default is false
+    KEEP_SHADOWS_AFTER_UNMANAGE = false
