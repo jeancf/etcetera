@@ -23,6 +23,8 @@ cmdline.add_argument('-m', '--manage', metavar='filename', action='store',
                      help='Full path of file to take over and replace by symlink')
 cmdline.add_argument('-u', '--unmanage', metavar='filename', action='store',
                      help='Full path of file to return to original location instead of symlink')
+cmdline.add_argument('-u', '--commit', metavar='filename', action='store',
+                     help='Full path of symlink to managed file to save')
 
 # Parse command line arguments
 args = vars(cmdline.parse_args()) # convert namespace object to dictionary
@@ -42,8 +44,10 @@ config.read('etcetera.conf')
 if args['list']:
     display_list(config)
 elif args['manage'] is not None:
-    manage_file(config, args['manage'])
+    do_manage_file(config, args['manage'])
 elif args['unmanage'] is not None:
-    unmanage_file(config, args['unmanage'])
+    do_unmanage_file(config, args['unmanage'])
+elif args['commit'] is not None:
+    do_commit_file(config, args['commit'])
 else:
     print('Check available commands with "etcetera -h"')

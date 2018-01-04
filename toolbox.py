@@ -34,6 +34,48 @@ def is_in_blacklist(config, file):
     return False
 
 
+def is_managed(config, symlink):
+    """
+    Verify that the symlink is correctly managed
+    :param config:  Configuration object
+    :param symlink: full path + name of symlink to check
+    :return: True or False
+    """
+    # Check if symlink is in allowed original locations
+    if not is_in_original_locations(config, symlink):
+        print('ERROR: File is not in allowed original location')
+        return False
+
+    # Check that the file is a symlink
+    if not os.path.islink(symlink):
+        print('ERROR: Argument is not a symlink')
+        return False
+
+    # Check that the symlink points to the correct file in shadow location
+    shadow_file = os.path.join(config['MAIN']['SHADOW_LOCATION'], symlink)
+    if os.path.realpath(symlink) != shadow_file:
+        print('ERROR: Symlink does not point to correct shadow file')
+        return False
+
+    # Check that the corresponding shadow file exists
+    if not os.path.isfile(shadow_file):
+        print('ERROR: Shadow file does not exit')
+        return False
+
+    # Check that the corresponding .COMMIT
+    if not os.path.isfile(shadow_file):
+        print('ERROR: Commit file does not exit')
+        return False
+
+    return True
+
+
+def copy_file_with_stats(source, destination):
+    shutil.copy2(source, destination)
+    # Make sure file stats are identical as they are used for change detection
+    shutil.copystat(source, destination)
+
+
 def remove_empty_directories(directory):
     """
     Remove empty directories as far up full_path as possible

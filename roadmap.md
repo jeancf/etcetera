@@ -48,12 +48,14 @@ _________
 
 * Add .COMMIT version of the file
 
+**DONE***
+
 ### --commit FILENAME ###
 
 * Verify that there are differences between file and its .COMMIT (toolbox function)
-* If there are, save copy of file under `.COMMIT` and `.COMMIT[timestamp]`
 * If there aren't, tell the user
-* Count the number of `.COMMIT[timestamp]` files present. If there are more than allowed
+* If there are, save copy of file under `.COMMIT` and `.COMMIT[timestamp]`
+* Count the number of `.COMMIT[timestamp]` files present. If there are more than allowed delete the oldest.
 
 ### --rollback FILENAME ###
 
@@ -132,3 +134,10 @@ It may be difficult to handle a subsequent call to --manage. What to do with .OR
     # Delete all shadow files after restoration into original location when calling --unmanage (true/false)
     Default is false
     KEEP_SHADOWS_AFTER_UNMANAGE = false
+
+### Confirmation option for destructive changes ###
+
+Are you sure (y/N) for:
+
+* --rollback
+* --unmanage

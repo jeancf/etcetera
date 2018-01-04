@@ -3,9 +3,9 @@
 # Maintainer JC Francois <jc.francois@gmail.com>
 
 import sys
-import os
 import glob
-import shutil
+import filecmp
+import time
 
 from toolbox import *
 
@@ -30,7 +30,7 @@ def display_list(config):
                         print(origin)
 
 
-def manage_file(config, original_file):
+def do_manage_file(config, original_file):
     """
     Move file from ORIGINAL_LOCATION to SHADOW_LOCATION and replace it by a symlink
     :param config:        Configuration object
@@ -62,10 +62,11 @@ def manage_file(config, original_file):
         print('ERROR: File already managed')
         sys.exit(-1)
 
-    # Move original file to shadow path and create a copy with .ORIG extension if required
+    # Move original file to shadow path and create copies with .COMMIT and .ORIG (if required) extension
     os.rename(original_file, shadow_file)
+    copy_file_with_stats(shadow_file, shadow_file + '.COMMIT')
     if config['BEHAVIOR'].getboolean('KEEP_ORIG'):
-        shutil.copy2(shadow_file, shadow_file + '.ORIG')
+        copy_file_with_stats(shadow_file, shadow_file + '.ORIG')
 
     # Create symlink to shadow file in original location to replace original file
     os.symlink(shadow_file, original_file)
@@ -73,7 +74,7 @@ def manage_file(config, original_file):
     print('SUCCESS: File saved and replaced by symlink')
 
 
-def unmanage_file(config, symlink):
+def do_unmanage_file(config, symlink):
     """
     Restore file from SHADOW_LOCATION to ORIGINAL_LOCATION
     :param config:        Configuration object
@@ -81,23 +82,7 @@ def unmanage_file(config, symlink):
     :return:
     """
     # Check if symlink is in allowed original locations
-    if not is_in_original_locations(config, symlink):
-        print('ERROR: File is not in allowed original location')
-        sys.exit(-1)
-
-    # Check that the file is a symlink
-    if not os.path.islink(symlink):
-        print('ERROR: Argument is not a symlink')
-        sys.exit(-1)
-
-    # Check that the symlink points to the correct file in shadow location
-    shadow_file = os.path.join(config['MAIN']['SHADOW_LOCATION'], symlink)
-    if os.path.realpath(symlink) != shadow_file:
-        print('ERROR: Symlink does not point to correct shadow file')
-        sys.exit(-1)
-
-    # Check that the corresponding shadow file exists
-    if not os.path.isfile(shadow_file):
+    if not is_managed(config, symlink):
         print('ERROR: Shadow file does not exit')
         sys.exit(-1)
 
@@ -117,3 +102,33 @@ def unmanage_file(config, symlink):
     remove_empty_directories(os.path.dirname(shadow_file))
     print('SUCCESS: File restored in original location and shadow content deleted')
 
+
+def do_commit_file(config, symlink):
+    # Check if symlink is managed correctly
+    if not is_managed(config, symlink):
+        print('ERROR: Shadow file does not exit')
+        sys.exit(-1)
+
+    shadow_file = os.path.join(config['MAIN']['SHADOW_LOCATION'] + symlink)
+    commit_file = shadow_file + '.COMMIT'
+
+    if filecmp.cmp(shadow_file, commit_file, shallow=True):
+        print("NOTICE: No unrecorded changes. Nothing to do.")
+        sys.exit(-1)
+
+    t = time.localtime()
+    timestamp = str(t.tm_year) +\
+                str(t.tm_mon).zfill(2) +\
+                str(t.tm_mday).zfill(2) +\
+                '_' +\
+                str(t.tm_hour).zfill(2) +\
+                str(t.tm_min).zfill(2) +\
+                str(t.tm_sec).zfill(2)
+
+    copy_file_with_stats(shadow_file, commit_file + '_' + timestamp)
+    copy_file_with_stats(shadow_file, commit_file)
+
+    # Delete oldest save file is max number is passed
+    save_file_list = glob.glob(commit_file + '_*').sort()
+    if len(save_file_list) > config['BEHAVIOR']['MAX_SAVES']:
+        os.remove(save_file_list[0])
