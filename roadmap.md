@@ -43,11 +43,11 @@ Support specifying directories instead of individual files (e.g. `/etc/ssh`)
 ### --unmanage FILENAME ###
 
 * Support specifying directories instead of individual files (e.g. `/etc/ssh`)
+* Option to keep all related files in the shadow directory
 
-### --rev FILENAME ###
+### --commit FILENAME ###
 
-Increment version of file by taking a backup of the previous version (the one when --manage or --rev was called last).
-Can be invoked before or after modification of file.
+Increment version of file by taking a backup of the previous version (the one when --manage or --commit was called last).
 
 ### --rollback FILENAME ###
 
