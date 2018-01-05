@@ -2,14 +2,16 @@
 # Library of commands and support functions
 # Maintainer JC Francois <jc.francois@gmail.com>
 
+
 import sys
+import os
 import glob
 import filecmp
-import time
 
 from toolbox import *
 
-def display_list(config):
+
+def do_display_list(config):
     """
     Display the list of files currently managed by etcetera
     :param config: Configuration object
@@ -86,6 +88,8 @@ def do_unmanage_file(config, symlink):
         print('ERROR: Shadow file does not exit')
         sys.exit(-1)
 
+    shadow_file = os.path.join(config['MAIN']['SHADOW_LOCATION'], symlink)
+
     # Delete symlink and replace it by shadow file in original location
     os.remove(symlink)
     os.rename(shadow_file, symlink)
@@ -106,7 +110,7 @@ def do_unmanage_file(config, symlink):
 def do_commit_file(config, symlink):
     # Check if symlink is managed correctly
     if not is_managed(config, symlink):
-        print('ERROR: Shadow file does not exit')
+        print('Commit aborted.')
         sys.exit(-1)
 
     shadow_file = os.path.join(config['MAIN']['SHADOW_LOCATION'] + symlink)
@@ -116,19 +120,59 @@ def do_commit_file(config, symlink):
         print("NOTICE: No unrecorded changes. Nothing to do.")
         sys.exit(-1)
 
-    t = time.localtime()
-    timestamp = str(t.tm_year) +\
-                str(t.tm_mon).zfill(2) +\
-                str(t.tm_mday).zfill(2) +\
-                '_' +\
-                str(t.tm_hour).zfill(2) +\
-                str(t.tm_min).zfill(2) +\
-                str(t.tm_sec).zfill(2)
-
-    copy_file_with_stats(shadow_file, commit_file + '_' + timestamp)
+    copy_file_with_stats(shadow_file, commit_file + get_timestamp())
     copy_file_with_stats(shadow_file, commit_file)
 
     # Delete oldest save file is max number is passed
-    save_file_list = glob.glob(commit_file + '_*').sort()
-    if len(save_file_list) > config['BEHAVIOR']['MAX_SAVES']:
+    save_file_list = glob.glob(commit_file + '_*')
+    save_file_list.sort()
+    if len(save_file_list) > config['BEHAVIOR'].getint('MAX_SAVES'):
         os.remove(save_file_list[0])
+
+    print('SUCCESS: version committed')
+
+def do_revert_file(config, symlink):
+    # Check if symlink is managed correctly
+    if not is_managed(config, symlink):
+        print('Revert aborted.')
+        sys.exit(-1)
+
+    shadow_file = os.path.join(config['MAIN']['SHADOW_LOCATION'] + symlink)
+    commit_file = shadow_file + '.COMMIT'
+
+    # Build list of candidate files for restoration
+    save_file_list = glob.glob(commit_file + '_*')
+    save_file_list.sort(reverse=True)
+
+    # Display list of dates of COMMIT files and get user choice
+    print('File was saved on these dates:')
+    i = 0
+    for fn in save_file_list:
+        i += 1
+        # Extract timestamp from file name and transform it into a printable string
+        timestring = get_timestring_from_timestamp(fn.split('.COMMIT', maxsplit=1)[1])
+        print('   ' + str(i) + ' | ' + timestring)
+
+    if os.path.isfile(shadow_file + '.ORIG'):
+        i += 1
+        # Convert the mtime from file stat into time tuple then into readable string
+        timestring = time.asctime(time.localtime(os.stat(shadow_file + '.ORIG').st_mtime))
+        print('   ' + str(i) + ' | ' + timestring)
+
+    choice = input('Select file version to revert to (1-' + str(i) + '): ')
+
+    try:
+        num_choice = int(choice)
+    except ValueError:
+        print('ERROR: invalid input')
+        sys.exit(-1)
+
+    if num_choice == i:
+        # Revert to .ORIG file
+        shutil.copy2(shadow_file + '.ORIG', shadow_file)
+    elif 0 < num_choice < i:
+        # Revert to .COMMIT file
+        shutil.copy2(save_file_list[num_choice-1], shadow_file)
+    else:
+        print('ERROR: invalid input')
+        sys.exit(-1)

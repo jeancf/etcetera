@@ -57,11 +57,14 @@ _________
 * If there are, save copy of file under `.COMMIT` and `.COMMIT[timestamp]`
 * Count the number of `.COMMIT[timestamp]` files present. If there are more than allowed delete the oldest.
 
-### --rollback FILENAME ###
+**DONE**
 
-Discard all changes made since --manage or --commit was called last.
+### --revert FILENAME ###
 
-* Overwrite managed file with its .COMMIT version
+* If multiple commits are available, propose list to pick from
+* Overwrite managed file with the chosen .COMMIT version
+
+**DONE**
 
 ### --status FILENAME ###
 
@@ -95,19 +98,19 @@ Support specifying directories instead of individual files (e.g. `/etc/ssh`)
 
 Capture and save a comment string to display when showing list of commits
 
-### --rollback FILENAME ###
+### --revert FILENAME ###
 
-* If multiple commits are available, propose list to pick from
-* Display comment alongside list of available commits to rollback
+* Display comment alongside list of available commits to revert
+* Optionally (?) save the current version of the file as .COMMIT[timestamp]
 
-### ensure consistency of repository ### 
+### Ensure consistency of repository ### 
 
 * Verify that no symlinks are dead
 * Handle case where a location has been removed from MANAGED_LOCATIONS
 
 ### Monitor file changes ###
 
-Use pyinotify module to monitor file changes and rev
+Use pyinotify module to monitor file changes and auto-commit
 
 ### Automate testing ###
 
@@ -121,7 +124,7 @@ Log to systemd journal using systemd.journal python module
 
 * manage/unmanage
 * original/shadow
-* rev/rollback
+* rev/revert
 
 ### implement doctest ###
 
@@ -139,5 +142,9 @@ It may be difficult to handle a subsequent call to --manage. What to do with .OR
 
 Are you sure (y/N) for:
 
-* --rollback
+* --revert
 * --unmanage
+
+### Security check ###
+
+Avoid that a rogue file is introduced as a replacement for a config file

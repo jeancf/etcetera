@@ -23,8 +23,11 @@ cmdline.add_argument('-m', '--manage', metavar='filename', action='store',
                      help='Full path of file to take over and replace by symlink')
 cmdline.add_argument('-u', '--unmanage', metavar='filename', action='store',
                      help='Full path of file to return to original location instead of symlink')
-cmdline.add_argument('-u', '--commit', metavar='filename', action='store',
+cmdline.add_argument('-c', '--commit', metavar='filename', action='store',
                      help='Full path of symlink to managed file to save')
+cmdline.add_argument('-r', '--revert', metavar='filename', action='store',
+                     help='Full path of symlink to managed file to restore')
+
 
 # Parse command line arguments
 args = vars(cmdline.parse_args()) # convert namespace object to dictionary
@@ -39,15 +42,19 @@ config.read('etcetera.conf')
 # DEBUG
 # for key in config['MAIN']:
 #     print(str(key) + " = " + str(config['MAIN'][key]))
+# for key in config['BEHAVIOR']:
+#     print(str(key) + " = " + str(config['BEHAVIOR'][key]))
 
 # Respond to commands
 if args['list']:
-    display_list(config)
+    do_display_list(config)
 elif args['manage'] is not None:
     do_manage_file(config, args['manage'])
 elif args['unmanage'] is not None:
     do_unmanage_file(config, args['unmanage'])
 elif args['commit'] is not None:
     do_commit_file(config, args['commit'])
+elif args['revert'] is not None:
+    do_revert_file(config, args['revert'])
 else:
     print('Check available commands with "etcetera -h"')

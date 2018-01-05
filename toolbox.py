@@ -57,7 +57,7 @@ def is_managed(config, symlink):
         return False
 
     # Check that the symlink points to the correct file in shadow location
-    shadow_file = os.path.join(config['MAIN']['SHADOW_LOCATION'], symlink)
+    shadow_file = config['MAIN']['SHADOW_LOCATION'].rstrip('/') + symlink
     if os.path.realpath(symlink) != shadow_file:
         print('ERROR: Symlink does not point to correct shadow file')
         return False
