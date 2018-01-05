@@ -32,8 +32,6 @@ List all files currently managed by etcetera
 
 **DONE**
 
-_________
-
 ## Version 0.2 ##
 
 ### Split etcetera_mod.py in `commands.py` and `functions.py` ###
@@ -61,7 +59,7 @@ _________
 
 ### --revert FILENAME ###
 
-* If multiple commits are available, propose list to pick from
+* Propose list to pick from
 * Overwrite managed file with the chosen .COMMIT version
 
 **DONE**
@@ -71,7 +69,7 @@ _________
 * Check that symlink points to file with same name in shadow location
 * Mention if there are uncommitted changes to file
 * Mention if .ORIG file is available
-* List .COMMIT and .ORIG files 
+* List .COMMIT and .ORIG files
 
 ### --info ###
 
@@ -84,15 +82,7 @@ Provide useful information about etcetera configuration and state.
 * Whether `.ORIG` files are preserved
 * Location of configuration file
 
-## Later ##
-
-### --manage FILENAME ###
-
-Support specifying directories instead of individual files (e.g. `/etc/ssh`)
-
-### --unmanage FILENAME ###
-
-* Support specifying directories instead of individual files (e.g. `/etc/ssh`)
+## Version 0.3 ##
 
 ### --commit FILENAME COMMENT ###
 
@@ -103,10 +93,15 @@ Capture and save a comment string to display when showing list of commits
 * Display comment alongside list of available commits to revert
 * Optionally (?) save the current version of the file as .COMMIT[timestamp]
 
-### Ensure consistency of repository ### 
+## Later ##
 
-* Verify that no symlinks are dead
-* Handle case where a location has been removed from MANAGED_LOCATIONS
+### --manage FILENAME ###
+
+Support specifying directories instead of individual files (e.g. `/etc/ssh`)
+
+### --unmanage FILENAME ###
+
+* Support specifying directories instead of individual files (e.g. `/etc/ssh`)
 
 ### Monitor file changes ###
 
@@ -142,9 +137,35 @@ It may be difficult to handle a subsequent call to --manage. What to do with .OR
 
 Are you sure (y/N) for:
 
-* --revert
+* --revert if uncommitted changes exist in file
 * --unmanage
 
 ### Security check ###
 
 Avoid that a rogue file is introduced as a replacement for a config file
+
+### possibility to commit files with relative path ###
+
+* pass the symlink argument to function that returns the full path
+
+### Hardening ###
+
+#### Avoid config file breakage ####
+
+Access and store config file variable at the beginning of the execution of a command
+to avoid failing midway due to a typo in the config file
+
+#### Disallow saving is some locations ####
+
+    /proc
+    /bin
+
+#### Ensure consistency of repository ####
+
+* Verify that no symlinks are dead
+* Handle case where a location has been removed from MANAGED_LOCATIONS
+
+### Review command-line parameters syntax ###
+
+* Implement FILENAME with parent
+* Allow combinations of certain switches (e.g. --commit and --comment)

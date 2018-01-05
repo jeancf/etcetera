@@ -27,7 +27,8 @@ cmdline.add_argument('-c', '--commit', metavar='filename', action='store',
                      help='Full path of symlink to managed file to save')
 cmdline.add_argument('-r', '--revert', metavar='filename', action='store',
                      help='Full path of symlink to managed file to restore')
-
+cmdline.add_argument('-s', '--status', metavar='filename', action='store',
+                     help='Full path of symlink for which to display status')
 
 # Parse command line arguments
 args = vars(cmdline.parse_args()) # convert namespace object to dictionary
@@ -56,5 +57,8 @@ elif args['commit'] is not None:
     do_commit_file(config, args['commit'])
 elif args['revert'] is not None:
     do_revert_file(config, args['revert'])
+elif args['status'] is not None:
+    display_file_status(config, args['status'])
 else:
     print('Check available commands with "etcetera -h"')
+

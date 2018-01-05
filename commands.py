@@ -85,10 +85,10 @@ def do_unmanage_file(config, symlink):
     """
     # Check if symlink is in allowed original locations
     if not is_managed(config, symlink):
-        print('ERROR: Shadow file does not exit')
+        print('unmanage operation aborted.')
         sys.exit(-1)
 
-    shadow_file = os.path.join(config['MAIN']['SHADOW_LOCATION'], symlink)
+    shadow_file = config['MAIN']['SHADOW_LOCATION'].rstrip('/') + symlink
 
     # Delete symlink and replace it by shadow file in original location
     os.remove(symlink)
@@ -113,7 +113,7 @@ def do_commit_file(config, symlink):
         print('Commit aborted.')
         sys.exit(-1)
 
-    shadow_file = os.path.join(config['MAIN']['SHADOW_LOCATION'] + symlink)
+    shadow_file = config['MAIN']['SHADOW_LOCATION'].rstrip('/') + symlink
     commit_file = shadow_file + '.COMMIT'
 
     if filecmp.cmp(shadow_file, commit_file, shallow=True):
@@ -123,13 +123,14 @@ def do_commit_file(config, symlink):
     copy_file_with_stats(shadow_file, commit_file + get_timestamp())
     copy_file_with_stats(shadow_file, commit_file)
 
-    # Delete oldest save file is max number is passed
+    # Delete oldest save files in excess of max allowed number
     save_file_list = glob.glob(commit_file + '_*')
-    save_file_list.sort()
-    if len(save_file_list) > config['BEHAVIOR'].getint('MAX_SAVES'):
-        os.remove(save_file_list[0])
+    save_file_list.sort(reverse=True)
+    for i in range(config['BEHAVIOR'].getint('MAX_SAVES'), len(save_file_list)):
+        os.remove(save_file_list[i])
 
     print('SUCCESS: version committed')
+
 
 def do_revert_file(config, symlink):
     # Check if symlink is managed correctly
@@ -151,15 +152,16 @@ def do_revert_file(config, symlink):
         i += 1
         # Extract timestamp from file name and transform it into a printable string
         timestring = get_timestring_from_timestamp(fn.split('.COMMIT', maxsplit=1)[1])
-        print('   ' + str(i) + ' | ' + timestring)
+        print(' {:>4}'.format(str(i)) + ' | ' + timestring)
 
+    # Add .ORIG file to the list if it exits
     if os.path.isfile(shadow_file + '.ORIG'):
         i += 1
         # Convert the mtime from file stat into time tuple then into readable string
         timestring = time.asctime(time.localtime(os.stat(shadow_file + '.ORIG').st_mtime))
-        print('   ' + str(i) + ' | ' + timestring)
+        print(' {:>4}'.format(str(i)) + ' | ' + timestring + ' (original file)')
 
-    choice = input('Select file version to revert to (1-' + str(i) + '): ')
+    choice = input('Select file version to revert to (1-' + str(i) + ', 0 to abort): ')
 
     try:
         num_choice = int(choice)
@@ -167,7 +169,10 @@ def do_revert_file(config, symlink):
         print('ERROR: invalid input')
         sys.exit(-1)
 
-    if num_choice == i:
+    if num_choice == 0:
+        print('NOTICE: Aborted by user')
+        sys.exit(0)
+    elif num_choice == i:
         # Revert to .ORIG file
         shutil.copy2(shadow_file + '.ORIG', shadow_file)
     elif 0 < num_choice < i:
@@ -175,4 +180,13 @@ def do_revert_file(config, symlink):
         shutil.copy2(save_file_list[num_choice-1], shadow_file)
     else:
         print('ERROR: invalid input')
+        sys.exit(-1)
+
+    print('SUCCESS: selected version restored')
+
+
+def display_file_status(config, symlink):
+    # Check if symlink is managed correctly
+    if not is_managed(config, symlink):
+        print('Incorrect setup. Try "--unmanage" then "--manage" again to reset')
         sys.exit(-1)
