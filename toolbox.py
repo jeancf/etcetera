@@ -3,6 +3,11 @@
 # Maintainer JC Francois <jc.francois@gmail.com>
 
 import os
+import time
+import shutil
+
+
+CONST_TIMESTAMP_FORMAT_STRING = '_%Y-%m-%d_%H-%M-%S'
 
 
 def is_in_original_locations(config, file):
@@ -85,5 +90,23 @@ def remove_empty_directories(directory):
     path = directory
     while path != '/':
         if len(os.listdir(path)) == 0:  # Directory is empty
-            os.rmdir(path)  # rmdir only works on empty directories
+            os.rmdir(path)  # No risk of apocalypse as rmdir only works on empty directories
         path = os.path.dirname(path)
+
+
+def get_timestamp():
+    """
+    Get localtime and format timestamp string to append to file e.g. 20180105_105622
+    :param:
+    :return: string formatted to be used in files extension
+    """
+    return time.strftime(CONST_TIMESTAMP_FORMAT_STRING, time.localtime())
+
+
+def get_timestring_from_timestamp(timestamp):
+    """
+    Returns  string with date and time from timestamp e.g. "Fri Jan  5 10:56:22 2018"
+    :param:  timestamp created with get_timestamp()
+    :return: string with date and time from timestamp
+    """
+    return time.asctime(time.strptime(timestamp, CONST_TIMESTAMP_FORMAT_STRING))
