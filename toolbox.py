@@ -5,6 +5,7 @@
 import os
 import time
 import shutil
+import glob
 
 
 CONST_TIMESTAMP_FORMAT_STRING = '_%Y-%m-%d_%H-%M-%S'
@@ -110,3 +111,36 @@ def get_timestring_from_timestamp(timestamp):
     :return: string with date and time from timestamp
     """
     return time.asctime(time.strptime(timestamp, CONST_TIMESTAMP_FORMAT_STRING))
+
+
+def get_file_list(config, symlink):
+    """
+    Returns  string with date and time from timestamp e.g. "Fri Jan  5 10:56:22 2018"
+    :param:  timestamp created with get_timestamp()
+    :return: list of .COMMIT files and .ORIG file along with their timestamp formatted for display
+    """
+    shadow_file = os.path.join(config['MAIN']['SHADOW_LOCATION'] + symlink)
+    commit_file = shadow_file + '.COMMIT'
+    original_file = shadow_file + '.ORIG'
+
+    # Build list of candidate files for restoration
+    file_list = glob.glob(commit_file + '_*')
+    file_list.sort(reverse=True)
+
+    # build list of files and dates of COMMIT files
+    full_list = []
+    i = 0
+    for fn in file_list:
+        i += 1
+        # Extract timestamp from file name and transform it into a printable string
+        timestring = get_timestring_from_timestamp(fn.split('.COMMIT', maxsplit=1)[1])
+        full_list.append((fn, timestring))
+
+    # Add .ORIG file and date to the list if it exits
+    if os.path.isfile(original_file):
+        i += 1
+        # Convert the mtime from file stat into time tuple then into readable string
+        timestring = time.asctime(time.localtime(os.stat(original_file).st_mtime))
+        full_list.append((original_file, timestring))
+
+    return full_list

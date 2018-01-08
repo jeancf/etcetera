@@ -71,16 +71,20 @@ List all files currently managed by etcetera
 * Mention if .ORIG file is available
 * List .COMMIT and .ORIG files
 
+**DONE**
+
 ### --info ###
 
 Provide useful information about etcetera configuration and state.
 
-* Number of managed files
+* Location of configuration file
 * Original locations being monitored
 * Location of shadow directory
+* Number of managed files
 * Max number of backups preserved for each file
 * Whether `.ORIG` files are preserved
-* Location of configuration file
+
+**DONE***
 
 ## Version 0.3 ##
 

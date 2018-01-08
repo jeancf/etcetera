@@ -29,6 +29,8 @@ cmdline.add_argument('-r', '--revert', metavar='filename', action='store',
                      help='Full path of symlink to managed file to restore')
 cmdline.add_argument('-s', '--status', metavar='filename', action='store',
                      help='Full path of symlink for which to display status')
+cmdline.add_argument('-i', '--info', action='store_true',
+                     help='Display info about etcetera config and state')
 
 # Parse command line arguments
 args = vars(cmdline.parse_args()) # convert namespace object to dictionary
@@ -42,7 +44,7 @@ config.read('etcetera.conf')
 
 # DEBUG
 # for key in config['MAIN']:
-#     print(str(key) + " = " + str(config['MAIN'][key]))
+#      print(str(key) + " = " + str(config['MAIN'][key]))
 # for key in config['BEHAVIOR']:
 #     print(str(key) + " = " + str(config['BEHAVIOR'][key]))
 
@@ -58,7 +60,8 @@ elif args['commit'] is not None:
 elif args['revert'] is not None:
     do_revert_file(config, args['revert'])
 elif args['status'] is not None:
-    display_file_status(config, args['status'])
+    do_display_file_status(config, args['status'])
+elif args['info']:
+    do_display_info(config)
 else:
     print('Check available commands with "etcetera -h"')
-
