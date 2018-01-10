@@ -23,7 +23,7 @@ def do_display_list(config, show=True):
     for directory, subdirectories, files in os.walk(config['MAIN']['SHADOW_LOCATION']):
         for file in files:
             # Consider files that do not have the .ORIG or the .SAVE extension
-            if not '.ORIG' in file and not '.SAVE' in file:
+            if '.ORIG' not in file and '.COMMIT' not in file and '.COMMENT' not in file:
                 # remove shadow location from full path to get the original location
                 shadow_file = os.path.join(directory, file)
                 origin = shadow_file.replace(config['MAIN']['SHADOW_LOCATION'], '')
@@ -34,7 +34,8 @@ def do_display_list(config, show=True):
                         n += 1
                         if show:
                             print(' ' + origin)
-    print('Number of files managed: ' + str(n))
+    if show:
+        print('Number of files managed: ' + str(n))
     return n
 
 
@@ -113,13 +114,21 @@ def do_unmanage_file(config, symlink):
     print('SUCCESS: File restored in original location and shadow content deleted')
 
 
-def do_commit_file(config, symlink):
+def do_commit_file(config, symlink, note):
+    """
+    Save a copy of the managed file with .COMMIT extension and a timestamp
+    If --note command is present, store text in .COMMENT extension and the same timestamp
+    :param config:   Configuration object
+    :param note:     Text to store in .COMMENT file
+    :return:
+    """
     # Check if symlink is managed correctly
     if not is_managed(config, symlink):
         print('Commit aborted.')
         sys.exit(-1)
 
     # Check if there are changes to commit
+    timestamp = get_timestamp()
     shadow_file = config['MAIN']['SHADOW_LOCATION'].rstrip('/') + symlink
     commit_file = shadow_file + '.COMMIT'
 
@@ -127,14 +136,24 @@ def do_commit_file(config, symlink):
         print("NOTICE: No unrecorded changes. Nothing to do.")
         sys.exit(-1)
 
-    copy_file_with_stats(shadow_file, commit_file + get_timestamp())
+    copy_file_with_stats(shadow_file, commit_file + timestamp)
     copy_file_with_stats(shadow_file, commit_file)
+
+    # Write message to file
+    if note != '':
+        comment_file = open(shadow_file + '.COMMENT' + timestamp, 'w')
+        comment_file.write(note)
+        comment_file.close()
 
     # Delete oldest save files in excess of max allowed number
     save_file_list = glob.glob(commit_file + '_*')
     save_file_list.sort(reverse=True)
     for i in range(config['BEHAVIOR'].getint('MAX_SAVES'), len(save_file_list)):
         os.remove(save_file_list[i])
+        try:
+            os.remove(save_file_list[i].replace('.COMMIT', '.COMMENT'))
+        except FileNotFoundError:
+            pass
 
     print('SUCCESS: version committed')
 
@@ -154,10 +173,20 @@ def do_revert_file(config, symlink):
     for f in file_list:
         i += 1
         if '.ORIG' in f[0]:
-            print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' (original file)')
+            # Print original file datestamp
+            print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' | (original file)')
 
         else:
-            print(' {:>4}'.format(str(i)) + ' | ' + f[1])
+            # Print saved file timestamp and related note
+            note = ''
+            try:
+                nf = open(f[0].replace('.COMMIT', '.COMMENT'), 'r')
+                note = nf.readline()
+            except FileNotFoundError:
+                pass
+            finally:
+                nf.close()
+            print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' | ' + note)
 
     choice = input('Select file version to revert to (1-' + str(i) + ', 0 to abort): ')
 
@@ -196,10 +225,20 @@ def do_display_file_status(config, symlink):
     for f in file_list:
         i += 1
         if '.ORIG' in f[0]:
-            print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' (original file)')
+            # Print original file datestamp
+            print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' | (original file)')
 
         else:
-            print(' {:>4}'.format(str(i)) + ' | ' + f[1])
+            # Print saved file timestamp and related note
+            note = ''
+            try:
+                nf = open(f[0].replace('.COMMIT', '.COMMENT'), 'r')
+                note = nf.readline()
+            except FileNotFoundError:
+                pass
+            finally:
+                nf.close()
+            print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' | ' + note)
 
     # Check if there are uncommitted changes
     if not filecmp.cmp(shadow_file, commit_file, shallow=True):

@@ -84,7 +84,7 @@ Provide useful information about etcetera configuration and state.
 * Max number of backups preserved for each file
 * Whether `.ORIG` files are preserved
 
-**DONE***
+**DONE**
 
 ## Version 0.3 ##
 
@@ -92,10 +92,19 @@ Provide useful information about etcetera configuration and state.
 
 Capture and save a comment string to display when showing list of commits
 
+**DONE**
+
 ### --revert FILENAME ###
 
 * Display comment alongside list of available commits to revert
-* Optionally (?) save the current version of the file as .COMMIT[timestamp]
+
+**DONE**
+
+### --status FILENAME ###
+
+* Display comment alongside list of available commits to revert
+
+**DONE**
 
 ## Later ##
 

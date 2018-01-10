@@ -25,6 +25,8 @@ cmdline.add_argument('-u', '--unmanage', metavar='filename', action='store',
                      help='Full path of file to return to original location instead of symlink')
 cmdline.add_argument('-c', '--commit', metavar='filename', action='store',
                      help='Full path of symlink to managed file to save')
+cmdline.add_argument('-n', '--note', metavar='text', action='store',
+                     help='one-line note between quote marks to store with the committed file')
 cmdline.add_argument('-r', '--revert', metavar='filename', action='store',
                      help='Full path of symlink to managed file to restore')
 cmdline.add_argument('-s', '--status', metavar='filename', action='store',
@@ -56,7 +58,7 @@ elif args['manage'] is not None:
 elif args['unmanage'] is not None:
     do_unmanage_file(config, args['unmanage'])
 elif args['commit'] is not None:
-    do_commit_file(config, args['commit'])
+        do_commit_file(config, args['commit'], args['note'])
 elif args['revert'] is not None:
     do_revert_file(config, args['revert'])
 elif args['status'] is not None:
