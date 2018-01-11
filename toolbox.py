@@ -6,7 +6,8 @@ import os
 import time
 import shutil
 import glob
-
+import stat
+import filecmp
 
 CONST_TIMESTAMP_FORMAT_STRING = '_%Y-%m-%d_%H-%M-%S'
 
@@ -80,6 +81,9 @@ def copy_file_with_stats(source, destination):
     shutil.copy2(source, destination)
     # Make sure file stats are identical as they are used for change detection
     shutil.copystat(source, destination)
+    # Apply user:group of original file to copy
+    st = os.stat(source)
+    os.chown(destination, st[stat.ST_UID], st[stat.ST_GID])
 
 
 def remove_empty_directories(config, directory):
@@ -148,3 +152,22 @@ def get_file_list(config, symlink):
         full_list.append((original_file, timestring))
 
     return full_list
+
+def is_different(file1, file2):
+    """
+    Find out if there are differences between stats of 2 files
+    :param file1:
+    :param file2:
+    :return: True is any difference is found
+    """
+    result = True
+    file1_stat = os.stat(file1)
+    file2_stat = os.stat(file2)
+    
+    if filecmp.cmp(file1, file2, shallow=True) and \
+       stat.S_IMODE(file1_stat.st_mode) == stat.S_IMODE(file2_stat.st_mode) and \
+       file1_stat.st_uid == file2_stat.st_uid and \
+       file1_stat.st_gid == file2_stat.st_gid:
+        result = False
+
+    return result

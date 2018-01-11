@@ -5,7 +5,6 @@
 
 import sys
 import os
-import filecmp
 import glob
 
 from toolbox import *
@@ -127,13 +126,11 @@ def do_commit_file(config, symlink, note):
         print('Commit aborted.')
         sys.exit(-1)
 
-    # Check if there are changes to commit
-    # TODO: also check if stat.S_IMODE(filestat.st_mode) are the same
-    # TODO: also check if filestat.st_uid and filestat.st_gid are the same
     timestamp = get_timestamp()
     shadow_file = config['MAIN']['SHADOW_LOCATION'].rstrip('/') + symlink
     commit_file = shadow_file + '.COMMIT'
-    if filecmp.cmp(shadow_file, commit_file, shallow=True):
+    # Check if there are changes to commit
+    if not is_different(shadow_file, commit_file):
         print("NOTICE: No unrecorded changes. Nothing to do.")
         sys.exit(-1)
 
@@ -207,7 +204,8 @@ def do_revert_file(config, symlink):
         sys.exit(0)
     elif 0 < num_choice <= i:
         # Revert to selected file
-        shutil.copy2(file_list[num_choice-1][0], shadow_file)
+        copy_file_with_stats(file_list[num_choice-1][0], shadow_file)
+
     else:
         print('ERROR: invalid input')
         sys.exit(-1)
@@ -244,10 +242,10 @@ def do_display_file_status(config, symlink):
             print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' | ' + note)
 
     # Check if there are uncommitted changes
-    if filecmp.cmp(shadow_file, commit_file, shallow=True):
-        print("\nThere are no uncommited changes to the file")
-    else:
+    if is_different(shadow_file, commit_file):
         print("\nSome changes to the file are not committed")
+    else:
+        print("\nThere are no uncommited changes to the file")
 
 
 def do_display_info(config):

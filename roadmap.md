@@ -108,6 +108,17 @@ Capture and save a comment string to display when showing list of commits
 
 ## Version 0.4 ##
 
+### Flag that a file has changed even if only mode/owner/group has changed ###
+
+**DONE**
+
+### Hardening ###
+
+* Testing
+* Code review
+* Bug fixes
+* Remote on github
+
 ### Clarify vocabulary ###
 
 * manage/unmanage
@@ -119,23 +130,13 @@ Capture and save a comment string to display when showing list of commits
 * Getting started
 * document each command
 
-### Hardening ###
-
-* Testing
-* Code review
-* Bug fixes
-* Remote on github
-
 ## Version 0.5 ##
-
-### Flag that a file has changed even if only mode/owner/group has changed ###
 
 ### Colored output ###
 
 ## Later ##
 
-
-So that mode/owner/group changes can also be committed 
+### display user/group/mode in commit list
 
 ### --manage FILENAME ###
 
