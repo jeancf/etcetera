@@ -74,7 +74,7 @@ def do_manage_file(config, etc_file):
     # Move file to manage to shadow path and create copies with .COMMIT and .ORIG (if required) extension
     os.rename(etc_file, shadow_file)
     copy_file_with_stats(shadow_file, shadow_file + '.COMMIT')
-    if config['BEHAVIOR'].getboolean('KEEP_ORIG'):
+    if config['BEHAVIOR'].getboolean('MANAGE_KEEP_ORIG'):
         copy_file_with_stats(shadow_file, shadow_file + '.ORIG')
 
     # Create symlink to shadow file in original location to replace  file to manage
@@ -92,7 +92,7 @@ def do_unmanage_file(config, symlink):
     """
     # Check if symlink is in allowed original locations
     if not is_managed(config, symlink):
-        print('unmanage operation aborted.')
+        print('Unmanage operation aborted.')
         sys.exit(-1)
 
     shadow_file = config['MAIN']['SHADOW_LOCATION'].rstrip('/') + symlink
@@ -102,7 +102,7 @@ def do_unmanage_file(config, symlink):
     os.rename(shadow_file, symlink)
 
     # Optionally place a copy of .ORIG file in original location
-    if config['BEHAVIOR'].getboolean('RESTORE_ORIG') and os.path.isfile(shadow_file + '.ORIG'):
+    if config['BEHAVIOR'].getboolean('UNMANAGE_RESTORE_ORIG') and os.path.isfile(shadow_file + '.ORIG'):
         os.rename(shadow_file + '.ORIG', symlink + '.ORIG')
 
     # Delete all related files under shadow directory
@@ -110,7 +110,7 @@ def do_unmanage_file(config, symlink):
         os.remove(f)
 
     # Delete potential empty folders after removal of files
-    remove_empty_directories(os.path.dirname(shadow_file))
+    remove_empty_directories(config, os.path.dirname(shadow_file))
     print('SUCCESS: File restored in original location and shadow content deleted')
 
 
@@ -136,19 +136,24 @@ def do_commit_file(config, symlink, note):
         print("NOTICE: No unrecorded changes. Nothing to do.")
         sys.exit(-1)
 
+    # Check if a note is required and provided
+    if config['BEHAVIOR'].getboolean('COMMIT_NOTE_REQUIRED') and note is None:
+        print('ERROR: Configuration requires a note with every commit. Retry with --note "TEXT".')
+        sys.exit(-1)
+
+    # Create the .COMMIT file
     copy_file_with_stats(shadow_file, commit_file + timestamp)
     copy_file_with_stats(shadow_file, commit_file)
 
     # Write message to file
-    if note != '':
-        comment_file = open(shadow_file + '.COMMENT' + timestamp, 'w')
-        comment_file.write(note)
-        comment_file.close()
+    if note is not None:
+        with open(shadow_file + '.COMMENT' + timestamp, 'w') as comment_file:
+            comment_file.write(note)
 
     # Delete oldest save files in excess of max allowed number
     save_file_list = glob.glob(commit_file + '_*')
     save_file_list.sort(reverse=True)
-    for i in range(config['BEHAVIOR'].getint('MAX_SAVES'), len(save_file_list)):
+    for i in range(config['BEHAVIOR'].getint('COMMIT_MAX_SAVES'), len(save_file_list)):
         os.remove(save_file_list[i])
         try:
             os.remove(save_file_list[i].replace('.COMMIT', '.COMMENT'))
@@ -199,7 +204,7 @@ def do_revert_file(config, symlink):
     if num_choice == 0:
         print('NOTICE: Aborted by user')
         sys.exit(0)
-    elif 0 < num_choice < i:
+    elif 0 < num_choice <= i:
         # Revert to selected file
         shutil.copy2(file_list[num_choice-1][0], shadow_file)
     else:
@@ -230,19 +235,18 @@ def do_display_file_status(config, symlink):
 
         else:
             # Print saved file timestamp and related note
-            note = ''
             try:
-                nf = open(f[0].replace('.COMMIT', '.COMMENT'), 'r')
-                note = nf.readline()
+                with open(f[0].replace('.COMMIT', '.COMMENT'), 'r') as nf:
+                    note = nf.readline()
             except FileNotFoundError:
-                pass
-            finally:
-                nf.close()
+                note = ''
             print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' | ' + note)
 
     # Check if there are uncommitted changes
-    if not filecmp.cmp(shadow_file, commit_file, shallow=True):
-        print("\nThere are uncommitted changes to the file")
+    if filecmp.cmp(shadow_file, commit_file, shallow=True):
+        print("\nThere are no uncommited changes to the file")
+    else:
+        print("\nSome changes to the file are not committed")
 
 
 def do_display_info(config):
@@ -266,7 +270,7 @@ def do_display_info(config):
     print('Number of files managed: ' + str(do_display_list(config, show=False)))
 
     # Max number of backups preserved for each file
-    print('Max number of backups preserved for each file: ' + str(config['BEHAVIOR']['MAX_SAVES']))
+    print('Max. number of backups preserved for each file: ' + str(config['BEHAVIOR']['COMMIT_MAX_SAVES']))
 
     # Original files
-    print('Original files are preserved: ' + str(config['BEHAVIOR'].getboolean('KEEP_ORIG')))
+    print('Original files are preserved: ' + str(config['BEHAVIOR'].getboolean('MANAGE_KEEP_ORIG')))

@@ -49,7 +49,7 @@ def is_managed(config, symlink):
     """
     # Check if symlink is in allowed original locations
     if not is_in_original_locations(config, symlink):
-        print('ERROR: File is not in allowed original location')
+        print('ERROR: File is not in an allowed original location')
         return False
 
     # Check that the file is a symlink
@@ -59,7 +59,7 @@ def is_managed(config, symlink):
 
     # Check that the symlink points to the correct file in shadow location
     shadow_file = config['MAIN']['SHADOW_LOCATION'].rstrip('/') + symlink
-    if os.path.realpath(symlink) != shadow_file:
+    if os.readlink(symlink) != shadow_file:
         print('ERROR: Symlink does not point to correct shadow file')
         return False
 
@@ -68,7 +68,7 @@ def is_managed(config, symlink):
         print('ERROR: Shadow file does not exit')
         return False
 
-    # Check that the corresponding .COMMIT
+    # Check that the corresponding .COMMIT is present
     if not os.path.isfile(shadow_file):
         print('ERROR: Commit file does not exit')
         return False
@@ -82,17 +82,21 @@ def copy_file_with_stats(source, destination):
     shutil.copystat(source, destination)
 
 
-def remove_empty_directories(directory):
+def remove_empty_directories(config, directory):
     """
-    Remove empty directories as far up full_path as possible
+    Remove empty directories as far up directory as possible
+    :param config:    Configuration object
     :param directory: Full path of directory to consider
     :return:
     """
-    path = directory
-    while path != '/':
-        if len(os.listdir(path)) == 0:  # Directory is empty
-            os.rmdir(path)  # No risk of apocalypse as rmdir only works on empty directories
-        path = os.path.dirname(path)
+    # Verify that we are within SHADOW_LOCATION
+    shadow_location = config['MAIN']['SHADOW_LOCATION'].rstrip('/')
+    if directory.startswith(shadow_location):
+        path = directory.rstrip('/')
+        while path != shadow_location:
+            if len(os.listdir(path)) == 0:  # Directory is empty
+                os.rmdir(path)  # No risk of apocalypse as rmdir only works on empty directories
+            path = os.path.dirname(path)
 
 
 def get_timestamp():

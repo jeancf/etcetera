@@ -106,6 +106,32 @@ Capture and save a comment string to display when showing list of commits
 
 **DONE**
 
+
+## Version 0.4 ##
+
+### Clarify vocabulary ###
+
+* manage/unmanage
+* original/shadow
+* rev/revert
+
+### Write documentation ###
+
+* Getting started
+* document each command
+
+### Hardening ###
+
+* Testing
+* Code review
+* Bug fixes
+* Remote on github
+
+## Version 0.5 ##
+
+### Colored output ###
+
+
 ## Later ##
 
 ### --manage FILENAME ###
@@ -120,19 +146,9 @@ Support specifying directories instead of individual files (e.g. `/etc/ssh`)
 
 Use pyinotify module to monitor file changes and auto-commit
 
-### Automate testing ###
-
-### logging to journal ###
+### Logging to journal ###
 
 Log to systemd journal using systemd.journal python module
-
-### Colored output ###
-
-### Clarify vocabulary ###
-
-* manage/unmanage
-* original/shadow
-* rev/revert
 
 ### implement doctest ###
 
@@ -168,7 +184,7 @@ Avoid that a rogue file is introduced as a replacement for a config file
 Access and store config file variable at the beginning of the execution of a command
 to avoid failing midway due to a typo in the config file
 
-#### Disallow saving is some locations ####
+#### Disallow saving in some locations ####
 
     /proc
     /bin
@@ -180,5 +196,4 @@ to avoid failing midway due to a typo in the config file
 
 ### Review command-line parameters syntax ###
 
-* Implement FILENAME with parent
-* Allow combinations of certain switches (e.g. --commit and --comment)
+* Implement FILENAME with parent (?)
