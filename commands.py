@@ -128,10 +128,11 @@ def do_commit_file(config, symlink, note):
         sys.exit(-1)
 
     # Check if there are changes to commit
+    # TODO: also check if stat.S_IMODE(filestat.st_mode) are the same
+    # TODO: also check if filestat.st_uid and filestat.st_gid are the same
     timestamp = get_timestamp()
     shadow_file = config['MAIN']['SHADOW_LOCATION'].rstrip('/') + symlink
     commit_file = shadow_file + '.COMMIT'
-
     if filecmp.cmp(shadow_file, commit_file, shallow=True):
         print("NOTICE: No unrecorded changes. Nothing to do.")
         sys.exit(-1)

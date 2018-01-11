@@ -106,7 +106,6 @@ Capture and save a comment string to display when showing list of commits
 
 **DONE**
 
-
 ## Version 0.4 ##
 
 ### Clarify vocabulary ###
@@ -129,10 +128,14 @@ Capture and save a comment string to display when showing list of commits
 
 ## Version 0.5 ##
 
+### Flag that a file has changed even if only mode/owner/group has changed ###
+
 ### Colored output ###
 
-
 ## Later ##
+
+
+So that mode/owner/group changes can also be committed 
 
 ### --manage FILENAME ###
 
