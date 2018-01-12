@@ -15,7 +15,7 @@ if os.geteuid() != 0:
     sys.exit(-1)
 
 # Configure command line arguments parser
-cmdline = argparse.ArgumentParser(prog='etcetera', description='Manage config files with wisdom.')
+cmdline = argparse.ArgumentParser(prog='etcetera', description='Config file management with a touch of wisdom.')
 # parser.add_argument('FILENAME', nargs='?', action='store', help='Name of file to manage')
 cmdline.add_argument('-l', '--list', action='store_true',
                      help='List files managed by etcetera')
