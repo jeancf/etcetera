@@ -125,10 +125,12 @@ Capture and save a comment string to display when showing list of commits
 * original/shadow
 * rev/revert
 
+**DONE**
+
 ### Write documentation ###
 
 * Getting started
-* document each command
+* Terminology
 
 ## Version 0.5 ##
 

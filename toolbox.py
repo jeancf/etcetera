@@ -1,6 +1,22 @@
 # -*- coding: utf-8 -*-
 # Library of commands and support functions
-# Maintainer JC Francois <jc.francois@gmail.com>
+
+"""
+    Copyright (C) 2018  Jean-Christophe Francois
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
 
 import os
 import time
@@ -58,19 +74,19 @@ def is_managed(config, symlink):
         print('ERROR: Argument is not a symlink')
         return False
 
-    # Check that the symlink points to the correct file in shadow location
-    shadow_file = config['MAIN']['SHADOW_LOCATION'].rstrip('/') + symlink
-    if os.readlink(symlink) != shadow_file:
-        print('ERROR: Symlink does not point to correct shadow file')
+    # Check that the symlink points to the correct file in managed location
+    managed_file = config['MAIN']['SHADOW_LOCATION'].rstrip('/') + symlink
+    if os.readlink(symlink) != managed_file:
+        print('ERROR: Symlink does not point to correct managed file')
         return False
 
-    # Check that the corresponding shadow file exists
-    if not os.path.isfile(shadow_file):
+    # Check that the corresponding managed file exists
+    if not os.path.isfile(managed_file):
         print('ERROR: Shadow file does not exit')
         return False
 
     # Check that the corresponding .COMMIT is present
-    if not os.path.isfile(shadow_file):
+    if not os.path.isfile(managed_file):
         print('ERROR: Commit file does not exit')
         return False
 
@@ -94,10 +110,10 @@ def remove_empty_directories(config, directory):
     :return:
     """
     # Verify that we are within SHADOW_LOCATION
-    shadow_location = config['MAIN']['SHADOW_LOCATION'].rstrip('/')
-    if directory.startswith(shadow_location):
+    managed_location = config['MAIN']['SHADOW_LOCATION'].rstrip('/')
+    if directory.startswith(managed_location):
         path = directory.rstrip('/')
-        while path != shadow_location:
+        while path != managed_location:
             if len(os.listdir(path)) == 0:  # Directory is empty
                 os.rmdir(path)  # No risk of apocalypse as rmdir only works on empty directories
             path = os.path.dirname(path)
@@ -127,9 +143,9 @@ def get_file_list(config, symlink):
     :param:  timestamp created with get_timestamp()
     :return: list of .COMMIT files and .ORIG file along with their timestamp formatted for display
     """
-    shadow_file = os.path.join(config['MAIN']['SHADOW_LOCATION'] + symlink)
-    commit_file = shadow_file + '.COMMIT'
-    original_file = shadow_file + '.ORIG'
+    managed_file = os.path.join(config['MAIN']['SHADOW_LOCATION'] + symlink)
+    commit_file = managed_file + '.COMMIT'
+    original_file = managed_file + '.ORIG'
 
     # Build list of candidate files for restoration
     file_list = glob.glob(commit_file + '_*')

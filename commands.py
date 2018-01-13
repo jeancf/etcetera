@@ -1,7 +1,22 @@
 # -*- coding: utf-8 -*-
 # Library of commands and support functions
-# Maintainer JC Francois <jc.francois@gmail.com>
 
+"""
+    Copyright (C) 2018  Jean-Christophe Francois
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
 
 import sys
 import os
@@ -18,18 +33,18 @@ def do_display_list(config, show=True):
     :return: number of files managed
     """
     n = 0
-    # build list of all files in shadow location
-    for directory, subdirectories, files in os.walk(config['MAIN']['SHADOW_LOCATION']):
+    # build list of all files in managed location
+    for directory, subdirectories, files in os.walk(config['MAIN']['MANAGED_LOCATION']):
         for file in files:
             # Consider files that do not have the .ORIG or the .SAVE extension
             if '.ORIG' not in file and '.COMMIT' not in file and '.COMMENT' not in file:
-                # remove shadow location from full path to get the original location
-                shadow_file = os.path.join(directory, file)
-                origin = shadow_file.replace(config['MAIN']['SHADOW_LOCATION'], '')
+                # remove managed location from full path to get the original location
+                managed_file = os.path.join(directory, file)
+                origin = managed_file.replace(config['MAIN']['MANAGED_LOCATION'], '')
                 # Check that symlink exists in original location
                 if os.path.islink(origin):
-                    # Check that the symlink points to shadow_file
-                    if os.readlink(origin) == shadow_file:
+                    # Check that the symlink points to managed_file
+                    if os.readlink(origin) == managed_file:
                         n += 1
                         if show:
                             print(' ' + origin)
@@ -40,7 +55,7 @@ def do_display_list(config, show=True):
 
 def do_manage_file(config, etc_file):
     """
-    Move file from ORIGINAL_LOCATION to SHADOW_LOCATION and replace it by a symlink
+    Move file from ORIGINAL_LOCATION to MANAGED_LOCATION and replace it by a symlink
     :param config:   Configuration object
     :param etc_file: Full path + name of the file to take over
     :return:
@@ -60,31 +75,31 @@ def do_manage_file(config, etc_file):
         print('ERROR: File does not exist')
         sys.exit(-1)
 
-    # Create file path in shadow location if necessary
-    shadow_file = os.path.join(config['MAIN']['SHADOW_LOCATION'] + etc_file)
-    shadow_path = os.path.dirname(shadow_file)
-    os.makedirs(shadow_path, mode=0o755, exist_ok=True)
+    # Create file path in managed location if necessary
+    managed_file = os.path.join(config['MAIN']['MANAGED_LOCATION'] + etc_file)
+    managed_path = os.path.dirname(managed_file)
+    os.makedirs(managed_path, mode=0o755, exist_ok=True)
 
-    # Check that file does not exist yet in shadow location
-    if os.path.isfile(shadow_file):
+    # Check that file does not exist yet in managed location
+    if os.path.isfile(managed_file):
         print('ERROR: File already managed')
         sys.exit(-1)
 
-    # Move file to manage to shadow path and create copies with .COMMIT and .ORIG (if required) extension
-    os.rename(etc_file, shadow_file)
-    copy_file_with_stats(shadow_file, shadow_file + '.COMMIT')
+    # Move file to manage to managed path and create copies with .COMMIT and .ORIG (if required) extension
+    os.rename(etc_file, managed_file)
+    copy_file_with_stats(managed_file, managed_file + '.COMMIT')
     if config['BEHAVIOR'].getboolean('MANAGE_KEEP_ORIG'):
-        copy_file_with_stats(shadow_file, shadow_file + '.ORIG')
+        copy_file_with_stats(managed_file, managed_file + '.ORIG')
 
-    # Create symlink to shadow file in original location to replace  file to manage
-    os.symlink(shadow_file, etc_file)
+    # Create symlink to managed file in original location to replace  file to manage
+    os.symlink(managed_file, etc_file)
 
     print('SUCCESS: File saved and replaced by symlink')
 
 
 def do_unmanage_file(config, symlink):
     """
-    Restore file from SHADOW_LOCATION to ORIGINAL_LOCATION
+    Restore file from MANAGED_LOCATION to ORIGINAL_LOCATION
     :param config:        Configuration object
     :param symlink:       Full path + name of the symlink to replace with file
     :return:
@@ -94,23 +109,23 @@ def do_unmanage_file(config, symlink):
         print('Unmanage operation aborted.')
         sys.exit(-1)
 
-    shadow_file = config['MAIN']['SHADOW_LOCATION'].rstrip('/') + symlink
+    managed_file = config['MAIN']['MANAGED_LOCATION'].rstrip('/') + symlink
 
-    # Delete symlink and replace it by shadow file in original location
+    # Delete symlink and replace it by managed file in original location
     os.remove(symlink)
-    os.rename(shadow_file, symlink)
+    os.rename(managed_file, symlink)
 
     # Optionally place a copy of .ORIG file in original location
-    if config['BEHAVIOR'].getboolean('UNMANAGE_RESTORE_ORIG') and os.path.isfile(shadow_file + '.ORIG'):
-        os.rename(shadow_file + '.ORIG', symlink + '.ORIG')
+    if config['BEHAVIOR'].getboolean('UNMANAGE_RESTORE_ORIG') and os.path.isfile(managed_file + '.ORIG'):
+        os.rename(managed_file + '.ORIG', symlink + '.ORIG')
 
-    # Delete all related files under shadow directory
-    for f in glob.glob(shadow_file + '*'):
+    # Delete all related files under managed directory
+    for f in glob.glob(managed_file + '*'):
         os.remove(f)
 
     # Delete potential empty folders after removal of files
-    remove_empty_directories(config, os.path.dirname(shadow_file))
-    print('SUCCESS: File restored in original location and shadow content deleted')
+    remove_empty_directories(config, os.path.dirname(managed_file))
+    print('SUCCESS: File restored in original location and managed content deleted')
 
 
 def do_commit_file(config, symlink, note):
@@ -127,10 +142,10 @@ def do_commit_file(config, symlink, note):
         sys.exit(-1)
 
     timestamp = get_timestamp()
-    shadow_file = config['MAIN']['SHADOW_LOCATION'].rstrip('/') + symlink
-    commit_file = shadow_file + '.COMMIT'
+    managed_file = config['MAIN']['MANAGED_LOCATION'].rstrip('/') + symlink
+    commit_file = managed_file + '.COMMIT'
     # Check if there are changes to commit
-    if not is_different(shadow_file, commit_file):
+    if not is_different(managed_file, commit_file):
         print("NOTICE: No unrecorded changes. Nothing to do.")
         sys.exit(-1)
 
@@ -140,21 +155,21 @@ def do_commit_file(config, symlink, note):
         sys.exit(-1)
 
     # Create the .COMMIT file
-    copy_file_with_stats(shadow_file, commit_file + timestamp)
-    copy_file_with_stats(shadow_file, commit_file)
+    copy_file_with_stats(managed_file, commit_file + timestamp)
+    copy_file_with_stats(managed_file, commit_file)
 
     # Write message to file
     if note is not None:
-        with open(shadow_file + '.COMMENT' + timestamp, 'w') as comment_file:
+        with open(managed_file + '.COMMENT' + timestamp, 'w') as comment_file:
             comment_file.write(note)
 
-    # Delete oldest save files in excess of max allowed number
-    save_file_list = glob.glob(commit_file + '_*')
-    save_file_list.sort(reverse=True)
-    for i in range(config['BEHAVIOR'].getint('COMMIT_MAX_SAVES'), len(save_file_list)):
-        os.remove(save_file_list[i])
+    # Delete oldest commit files in excess of max allowed number
+    commit_file_list = glob.glob(commit_file + '_*')
+    commit_file_list.sort(reverse=True)
+    for i in range(config['BEHAVIOR'].getint('COMMIT_MAX_SAVES'), len(commit_file_list)):
+        os.remove(commit_file_list[i])
         try:
-            os.remove(save_file_list[i].replace('.COMMIT', '.COMMENT'))
+            os.remove(commit_file_list[i].replace('.COMMIT', '.COMMENT'))
         except FileNotFoundError:
             pass
 
@@ -167,7 +182,7 @@ def do_revert_file(config, symlink):
         print('Revert aborted.')
         sys.exit(-1)
 
-    shadow_file = os.path.join(config['MAIN']['SHADOW_LOCATION'] + symlink)
+    managed_file = os.path.join(config['MAIN']['MANAGED_LOCATION'] + symlink)
 
     # Display list of dates
     print('File was committed on these dates:')
@@ -180,7 +195,7 @@ def do_revert_file(config, symlink):
             print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' | (original file)')
 
         else:
-            # Print saved file timestamp and related note
+            # Print commit file timestamp and related note
             note = ''
             try:
                 nf = open(f[0].replace('.COMMIT', '.COMMENT'), 'r')
@@ -204,7 +219,7 @@ def do_revert_file(config, symlink):
         sys.exit(0)
     elif 0 < num_choice <= i:
         # Revert to selected file
-        copy_file_with_stats(file_list[num_choice-1][0], shadow_file)
+        copy_file_with_stats(file_list[num_choice-1][0], managed_file)
 
     else:
         print('ERROR: invalid input')
@@ -219,8 +234,8 @@ def do_display_file_status(config, symlink):
         print('Incorrect setup. Try "--unmanage" then "--manage" again to reset')
         sys.exit(-1)
 
-    shadow_file = config['MAIN']['SHADOW_LOCATION'].rstrip('/') + symlink
-    commit_file = shadow_file + '.COMMIT'
+    managed_file = config['MAIN']['MANAGED_LOCATION'].rstrip('/') + symlink
+    commit_file = managed_file + '.COMMIT'
 
     # List save dates of .COMMIT and .ORIG files
     print('File was committed on these dates:')
@@ -233,7 +248,7 @@ def do_display_file_status(config, symlink):
             print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' | (original file)')
 
         else:
-            # Print saved file timestamp and related note
+            # Print commit file timestamp and related note
             try:
                 with open(f[0].replace('.COMMIT', '.COMMENT'), 'r') as nf:
                     note = nf.readline()
@@ -242,7 +257,7 @@ def do_display_file_status(config, symlink):
             print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' | ' + note)
 
     # Check if there are uncommitted changes
-    if is_different(shadow_file, commit_file):
+    if is_different(managed_file, commit_file):
         print("\nSome changes to the file are not committed")
     else:
         print("\nThere are no uncommited changes to the file")
@@ -262,8 +277,8 @@ def do_display_info(config):
             print(' ' + loc)
 
     # Shadow location
-    print('Location of shadow files:')
-    print(' ' + str(config['MAIN']['SHADOW_LOCATION']))
+    print('Location of managed files:')
+    print(' ' + str(config['MAIN']['MANAGED_LOCATION']))
 
     # Number of managed files
     print('Number of files managed: ' + str(do_display_list(config, show=False)))
