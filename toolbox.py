@@ -75,7 +75,7 @@ def is_managed(config, symlink):
         return False
 
     # Check that the symlink points to the correct file in managed location
-    managed_file = config['MAIN']['SHADOW_LOCATION'].rstrip('/') + symlink
+    managed_file = config['MAIN']['MANAGED_LOCATION'].rstrip('/') + symlink
     if os.readlink(symlink) != managed_file:
         print('ERROR: Symlink does not point to correct managed file')
         return False
@@ -109,8 +109,8 @@ def remove_empty_directories(config, directory):
     :param directory: Full path of directory to consider
     :return:
     """
-    # Verify that we are within SHADOW_LOCATION
-    managed_location = config['MAIN']['SHADOW_LOCATION'].rstrip('/')
+    # Verify that we are within MANAGED_LOCATION
+    managed_location = config['MAIN']['MANAGED_LOCATION'].rstrip('/')
     if directory.startswith(managed_location):
         path = directory.rstrip('/')
         while path != managed_location:
@@ -143,7 +143,7 @@ def get_file_list(config, symlink):
     :param:  timestamp created with get_timestamp()
     :return: list of .COMMIT files and .ORIG file along with their timestamp formatted for display
     """
-    managed_file = os.path.join(config['MAIN']['SHADOW_LOCATION'] + symlink)
+    managed_file = os.path.join(config['MAIN']['MANAGED_LOCATION'] + symlink)
     commit_file = managed_file + '.COMMIT'
     original_file = managed_file + '.ORIG'
 
@@ -168,6 +168,7 @@ def get_file_list(config, symlink):
         full_list.append((original_file, timestring))
 
     return full_list
+
 
 def is_different(file1, file2):
     """

@@ -112,13 +112,6 @@ Capture and save a comment string to display when showing list of commits
 
 **DONE**
 
-### Hardening ###
-
-* Testing
-* Code review
-* Bug fixes
-* Remote on github
-
 ### Clarify vocabulary ###
 
 * manage/unmanage
@@ -129,8 +122,26 @@ Capture and save a comment string to display when showing list of commits
 
 ### Write documentation ###
 
-* Getting started
-* Terminology
+
+### Write (un)install.sh ###
+
+**DONE**
+
+### Reverse order of list of commits ###
+
+So that older commits always keep the same order number (original file = 1)
+
+### Revise output of --info ###
+
+### Hardening ###
+
+* Testing
+* Code review
+* Bug fixes
+
+
+
+### Remote on github ###
 
 ## Version 0.5 ##
 

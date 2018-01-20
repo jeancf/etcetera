@@ -19,16 +19,39 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+import os
+import sys
 import argparse
 import configparser
-
-from commands import *
 
 
 # Check that we have root privileges
 if os.geteuid() != 0:
     print('ERROR: You do not have elevated privileges. Try "sudo etcetera"')
     sys.exit(-1)
+
+# Add path to etcetera modules
+sys.path.append('/usr/lib/etcetera')
+
+from commands import *
+
+
+# Check that config file exists
+config = None
+if os.path.isfile('/etc/etcetera.conf'):
+    # Parse config file
+    config = configparser.ConfigParser()
+    config.read('/etc/etcetera.conf')
+
+    # DEBUG
+    # for key in config['MAIN']:
+    #      print(str(key) + " = " + str(config['MAIN'][key]))
+    # for key in config['BEHAVIOR']:
+    #     print(str(key) + " = " + str(config['BEHAVIOR'][key]))
+
+else:
+    print('ERROR: config file /etc/etcetera.conf not found.')
+    exit(-1)
 
 # Configure command line arguments parser
 cmdline = argparse.ArgumentParser(prog='etcetera', description='Config file management with a touch of wisdom.')
@@ -56,16 +79,6 @@ args = vars(cmdline.parse_args())  # convert namespace object to dictionary
 
 # DEBUG
 # print(args)
-
-# Parse config file
-config = configparser.ConfigParser()
-config.read('etcetera.conf')
-
-# DEBUG
-# for key in config['MAIN']:
-#      print(str(key) + " = " + str(config['MAIN'][key]))
-# for key in config['BEHAVIOR']:
-#     print(str(key) + " = " + str(config['BEHAVIOR'][key]))
 
 # Respond to commands
 if args['list']:

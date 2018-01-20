@@ -22,6 +22,9 @@ import sys
 import os
 import glob
 
+# Add path to etcetera modules
+sys.path.append('/usr/lib/etcetera')
+
 from toolbox import *
 
 
@@ -32,7 +35,12 @@ def do_display_list(config, show=True):
     :param show: actually print list
     :return: number of files managed
     """
+
+    if show:
+        print('Files managed by etcetera:')
+
     n = 0
+
     # build list of all files in managed location
     for directory, subdirectories, files in os.walk(config['MAIN']['MANAGED_LOCATION']):
         for file in files:
@@ -48,8 +56,10 @@ def do_display_list(config, show=True):
                         n += 1
                         if show:
                             print(' ' + origin)
+
     if show:
         print('Number of files managed: ' + str(n))
+
     return n
 
 
