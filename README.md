@@ -7,8 +7,8 @@ Etcetera
 
 ## About ##
 
-Etcetera is a simple command line tool that lets you keep track of the changes
-to config files of a linux system.
+Etcetera is a simple command line tool that lets you keep track of changes to
+config files of a linux system.
 It is loosely inspired from the basic functionality of git (commit and revert).
 
 ## Why Etcetera? ##
@@ -26,7 +26,7 @@ installation defaults.
 
 ## Features ##
 
-* Strictly define locations where files can be managed by etc
+* Strictly define locations where files can be managed by Etcetera
 * Select which files to manage
 * Commit changes to a managed file with associated note
 * Revert changes by selecting a previous commit
