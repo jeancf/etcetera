@@ -120,12 +120,19 @@ Capture and save a comment string to display when showing list of commits
 
 **DONE**
 
-### Write documentation ###
+### Write initial documentation ###
 
+**DONE**
 
 ### Write (un)install.sh ###
 
 **DONE**
+
+### Remote on github ###
+
+**DONE**
+
+## Version 0.5 ##
 
 ### Reverse order of list of commits ###
 
@@ -133,21 +140,9 @@ So that older commits always keep the same order number (original file = 1)
 
 ### Revise output of --info ###
 
-### Hardening ###
-
-* Testing
-* Code review
-* Bug fixes
-
-
-
-### Remote on github ###
-
-## Version 0.5 ##
+## Later ##
 
 ### Colored output ###
-
-## Later ##
 
 ### display user/group/mode in commit list
 
