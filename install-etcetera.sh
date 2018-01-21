@@ -48,6 +48,10 @@ do_install()
     chown root:root /usr/share/etcetera/README.md
     chmod 640 /usr/share/etcetera/README.md
 
+    cp etcetera-logo.png /usr/share/etcetera
+    chown root:root /usr/share/etcetera/etcetera-logo.png
+    chmod 640 /usr/share/etcetera/etcetera-logo.png
+
     cp install-etcetera.sh /usr/share/etcetera
 
     cp commands.py /usr/lib/etcetera
@@ -76,15 +80,15 @@ do_remove()
         exit 1
     fi
 
-    # Remove files from /usr/share/etcetera and directory if empty
-    rm /usr/share/etcetera/README.md
-    if [ "`find /usr/share/etcetera -type d -empty`" = "/usr/share/etcetera" ]; then
-        rmdir /usr/share/etcetera
-    fi
+    # Remove /usr/share/etcetera
+    rm /usr/share/etcetera/ -r
 
     # Remove files from /usr/lib/etcetera and directory if empty
     rm /usr/lib/etcetera/commands.py
     rm /usr/lib/etcetera/toolbox.py
+    if [ -d /usr/lib/etcetera/__pycache__ ]; then
+        rm /usr/lib/etcetera/__pycache__ -r
+    fi
 
     if [ "`find /usr/lib/etcetera -type d -empty`" = "/usr/lib/etcetera" ]; then
         rmdir /usr/lib/etcetera
