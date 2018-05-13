@@ -138,9 +138,15 @@ Capture and save a comment string to display when showing list of commits
 
 So that older commits always keep the same order number (original file = 1)
 
-### Revise output of --info ###
+**DONE**
 
 ## Later ##
+
+### Revise output of --info ###
+
+### gain elevated privileges if not already available
+
+To avoid having to type `sudo` at every invocation
 
 ### Colored output ###
 
@@ -168,11 +174,11 @@ Start with toolbox functions
 
 ### Option to keep or delete shadow files after call to --unmanage ####
 
-It may be difficult to handle a subsequent call to --manage. What to do with .ORIG?
-
     # Delete all shadow files after restoration into original location when calling --unmanage (true/false)
     Default is false
     KEEP_SHADOWS_AFTER_UNMANAGE = false
+
+It may be difficult to handle a subsequent call to --manage. What to do with .ORIG?
 
 ### Confirmation option for destructive changes ###
 
@@ -193,7 +199,7 @@ Avoid that a rogue file is introduced as a replacement for a config file
 
 #### Avoid config file breakage ####
 
-Access and store config file variable at the beginning of the execution of a command
+Access and verify config file variable at the beginning of the execution of a command
 to avoid failing midway due to a typo in the config file
 
 #### Disallow saving in some locations ####

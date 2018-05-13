@@ -250,9 +250,9 @@ def do_display_file_status(config, symlink):
     # List save dates of .COMMIT and .ORIG files
     print('File was committed on these dates:')
     file_list = get_file_list(config, symlink)
-    i = 0
+    i = len(file_list) + 1
     for f in file_list:
-        i += 1
+        i -= 1
         if '.ORIG' in f[0]:
             # Print original file datestamp
             print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' | (original file)')
