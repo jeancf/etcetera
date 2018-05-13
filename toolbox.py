@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Library of commands and support functions
+# Library of support functions
 
 """
     Copyright (C) 2018  Jean-Christophe Francois

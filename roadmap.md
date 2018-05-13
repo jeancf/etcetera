@@ -142,11 +142,11 @@ So that older commits always keep the same order number (original file = 1)
 
 ## Later ##
 
-### Revise output of --info ###
-
 ### gain elevated privileges if not already available
 
 To avoid having to type `sudo` at every invocation
+
+**DONE**
 
 ### Colored output ###
 
@@ -215,3 +215,6 @@ to avoid failing midway due to a typo in the config file
 ### Review command-line parameters syntax ###
 
 * Implement FILENAME with parent (?)
+
+### Revise output of --info ###
+

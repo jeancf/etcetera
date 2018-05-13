@@ -54,6 +54,10 @@ do_install()
 
     cp install-etcetera.sh /usr/share/etcetera
 
+    cp parser.py /usr/lib/etcetera
+    chown root:root /usr/lib/etcetera/parser.py
+    chmod 755 /usr/lib/etcetera/parser.py
+
     cp commands.py /usr/lib/etcetera
     chown root:root /usr/lib/etcetera/commands.py
     chmod 640 /usr/lib/etcetera/commands.py
@@ -84,6 +88,7 @@ do_remove()
     rm /usr/share/etcetera/ -r
 
     # Remove files from /usr/lib/etcetera and directory if empty
+    rm /usr/lib/etcetera/parser.py
     rm /usr/lib/etcetera/commands.py
     rm /usr/lib/etcetera/toolbox.py
     if [ -d /usr/lib/etcetera/__pycache__ ]; then
