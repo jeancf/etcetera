@@ -30,18 +30,19 @@ if os.geteuid() != 0:
     print('ERROR: You do not have elevated privileges. Try "sudo etcetera"')
     sys.exit(-1)
 
+CONFIG_FILE_LOCATION = '/etc/etcetera.conf'
+
 # Add path to etcetera modules
 sys.path.append('/usr/lib/etcetera')
 
 from commands import *
 
-
 # Check that config file exists
 config = None
-if os.path.isfile('/etc/etcetera.conf'):
+if os.path.isfile(CONFIG_FILE_LOCATION):
     # Parse config file
     config = configparser.ConfigParser()
-    config.read('/etc/etcetera.conf')
+    config.read(CONFIG_FILE_LOCATION)
 
     # DEBUG
     # for key in config['MAIN']:
@@ -50,7 +51,7 @@ if os.path.isfile('/etc/etcetera.conf'):
     #     print(str(key) + " = " + str(config['BEHAVIOR'][key]))
 
 else:
-    print('ERROR: config file /etc/etcetera.conf not found.')
+    print('ERROR: config file ' + CONFIG_FILE_LOCATION + ' not found.')
     exit(-1)
 
 # Configure command line arguments parser
