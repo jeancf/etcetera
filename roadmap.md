@@ -148,9 +148,9 @@ To avoid having to type `sudo` at every invocation
 
 ## Later ##
 
-### Colored output ###
-
 ### display user/group/mode in commit list
+
+### Colored output ###
 
 ### --manage FILENAME ###
 
@@ -160,13 +160,20 @@ Support specifying directories instead of individual files (e.g. `/etc/ssh`)
 
 * Support specifying directories instead of individual files (e.g. `/etc/ssh`)
 
-### Monitor file changes ###
+### Confirmation option for destructive changes ###
 
-Use pyinotify module to monitor file changes and auto-commit
+Are you sure (y/N) for:
+
+* --revert if uncommitted changes exist in file
+* --unmanage
 
 ### Logging to journal ###
 
 Log to systemd journal using systemd.journal python module
+
+### Monitor file changes ###
+
+Use pyinotify module to monitor file changes and auto-commit
 
 ### implement doctest ###
 
@@ -179,13 +186,6 @@ Start with toolbox functions
     KEEP_SHADOWS_AFTER_UNMANAGE = false
 
 It may be difficult to handle a subsequent call to --manage. What to do with .ORIG?
-
-### Confirmation option for destructive changes ###
-
-Are you sure (y/N) for:
-
-* --revert if uncommitted changes exist in file
-* --unmanage
 
 ### Security check ###
 
@@ -214,7 +214,6 @@ to avoid failing midway due to a typo in the config file
 
 ### Review command-line parameters syntax ###
 
-* Implement FILENAME with parent (?)
+* Implement FILENAME with parent
 
 ### Revise output of --info ###
-
