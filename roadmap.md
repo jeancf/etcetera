@@ -140,13 +140,13 @@ So that older commits always keep the same order number (original file = 1)
 
 **DONE**
 
-## Later ##
-
 ### gain elevated privileges if not already available
 
 To avoid having to type `sudo` at every invocation
 
 **DONE**
+
+## Later ##
 
 ### Colored output ###
 
