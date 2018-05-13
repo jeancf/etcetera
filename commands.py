@@ -255,7 +255,7 @@ def do_display_file_status(config, symlink):
         i -= 1
         if '.ORIG' in f[0]:
             # Print original file datestamp
-            print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' | (original file)')
+            print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' | ' + f[2] + ' | ' + f[3] + ' | (original file)')
 
         else:
             # Print commit file timestamp and related note
@@ -264,7 +264,7 @@ def do_display_file_status(config, symlink):
                     note = nf.readline()
             except FileNotFoundError:
                 note = ''
-            print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' | ' + note)
+            print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' | ' + f[2] + ' | ' + f[3] + ' | ' + note)
 
     # Check if there are uncommitted changes
     if is_different(managed_file, commit_file):
