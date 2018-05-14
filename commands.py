@@ -21,6 +21,7 @@
 import sys
 import os
 import glob
+from colors import TColors as col
 
 # Add path to etcetera modules
 sys.path.append('/usr/lib/etcetera')
@@ -283,7 +284,7 @@ def do_display_file_status(config, symlink):
 def do_display_info(config):
     # Config file location
     print('Location of config file:')
-    print(' /etc/etcetera.conf')
+    print(col.BOLD + ' /etc/etcetera.conf' + col.ENDC)
 
     # Locations being monitored
     print('Locations where files can be monitored:')
@@ -291,17 +292,17 @@ def do_display_info(config):
     i = 0
     for loc in mon_locs:
         if loc != '':
-            print(' ' + loc)
+            print(' ' + col.BOLD + loc + col.ENDC)
 
     # Shadow location
-    print('Location of managed files:')
-    print(' ' + str(config['MAIN']['MANAGED_LOCATION']))
+    print(col.UNDERLINE + 'Location of managed files:' + col.ENDC)
+    print(' ' + col.BOLD + str(config['MAIN']['MANAGED_LOCATION']) + col.ENDC)
 
     # Number of managed files
-    print('Number of files managed: ' + str(do_display_list(config, show=False)))
+    print('Number of files managed: ' + col.BOLD + str(do_display_list(config, show=False)) + col.ENDC)
 
     # Max number of backups preserved for each file
-    print('Max. number of backups preserved for each file: ' + str(config['BEHAVIOR']['COMMIT_MAX_SAVES']))
+    print('Max. number of backups preserved for each file: ' + col.BOLD + str(config['BEHAVIOR']['COMMIT_MAX_SAVES']) + col.ENDC)
 
     # Original files
-    print('Original files are preserved: ' + str(config['BEHAVIOR'].getboolean('MANAGE_KEEP_ORIG')))
+    print('Original files are preserved: ' + col.BOLD + str(config['BEHAVIOR'].getboolean('MANAGE_KEEP_ORIG')) + col.ENDC)

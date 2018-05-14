@@ -146,8 +146,6 @@ To avoid having to type `sudo` at every invocation
 
 **DONE**
 
-## Later ##
-
 ### display user/group/mode in commit list
 
 **DONE**
@@ -158,22 +156,21 @@ If the file is reverted these changes will be lost
 
 **DONE**
 
+## Later ##
+
 ### Colored output ###
 
-### --manage FILENAME ###
+### --manage FILENAME|FOLDER ###
 
 Support specifying directories instead of individual files (e.g. `/etc/ssh`)
 
-### --unmanage FILENAME ###
+### --unmanage FILENAME|FOLDER ###
 
 * Support specifying directories instead of individual files (e.g. `/etc/ssh`)
 
 ### Confirmation option for destructive changes ###
 
-Are you sure (y/N) for:
-
-* --revert if uncommitted changes exist in file
-* --unmanage
+Are you sure (y/N) for --unmanage
 
 ### Logging to journal ###
 
