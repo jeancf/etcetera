@@ -193,16 +193,17 @@ def do_revert_file(config, symlink):
         sys.exit(-1)
 
     managed_file = os.path.join(config['MAIN']['MANAGED_LOCATION'] + symlink)
+    commit_file = managed_file + '.COMMIT'
 
-    # Display list of dates
+    # Display list of commits
     print('File was committed on these dates:')
     file_list = get_file_list(config, symlink)
-    i = 0
+    i = len(file_list) + 1
     for f in file_list:
-        i += 1
+        i -= 1
         if '.ORIG' in f[0]:
             # Print original file datestamp
-            print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' | (original file)')
+            print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' | ' + f[2] + ' | ' + f[3] + ' | (original file)')
 
         else:
             # Print commit file timestamp and related note
@@ -214,7 +215,12 @@ def do_revert_file(config, symlink):
                 pass
             finally:
                 nf.close()
-            print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' | ' + note)
+            print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' | ' + f[2] + ' | ' + f[3] + ' | ' + note)
+
+    # Check if there are uncommitted changes
+    if is_different(managed_file, commit_file):
+        print("\nWARNING: Some changes to the file are not committed.")
+        print("         If you revert now they will be overwritten.\n")
 
     choice = input('Select file version to revert to (1-' + str(i) + ', 0 to abort): ')
 
@@ -228,8 +234,9 @@ def do_revert_file(config, symlink):
         print('NOTICE: Aborted by user')
         sys.exit(0)
     elif 0 < num_choice <= i:
-        # Revert to selected file
-        copy_file_with_stats(file_list[num_choice-1][0], managed_file)
+        # Revert selected file
+        file_idx = len(file_list) - num_choice
+        copy_file_with_stats(file_list[file_idx][0], managed_file)
 
     else:
         print('ERROR: invalid input')

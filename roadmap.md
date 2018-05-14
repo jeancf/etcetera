@@ -150,6 +150,14 @@ To avoid having to type `sudo` at every invocation
 
 ### display user/group/mode in commit list
 
+**DONE**
+
+### When reverting, mention if the original file has uncommited changes
+
+If the file is reverted these changes will be lost
+
+**DONE**
+
 ### Colored output ###
 
 ### --manage FILENAME ###
