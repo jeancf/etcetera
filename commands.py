@@ -188,6 +188,7 @@ def do_commit_file(config, symlink, note):
 
 
 def do_revert_file(config, symlink):
+    # FIXME can the first part of this not just be a call of do_display_status?
     # Check if symlink is managed correctly
     if not is_managed(config, symlink):
         print(col.WARNING + 'Revert aborted.' + col.ENDC)
@@ -249,7 +250,6 @@ def do_revert_file(config, symlink):
 def do_display_file_status(config, symlink):
     # Check if symlink is managed correctly
     if not is_managed(config, symlink):
-        print('Incorrect setup. Try "--unmanage" then "--manage" again to reset')
         sys.exit(-1)
 
     managed_file = config['MAIN']['MANAGED_LOCATION'].rstrip('/') + symlink
@@ -276,9 +276,9 @@ def do_display_file_status(config, symlink):
 
     # Check if there are uncommitted changes
     if is_different(managed_file, commit_file):
-        print("\nSome changes to the file are not committed")
+        print(col.WARNING + "\nSome changes to the file are not committed" + col.WARNING)
     else:
-        print("\nThere are no uncommited changes to the file")
+        print("\nFile is the same as last commit")
 
 
 def do_display_info(config):
