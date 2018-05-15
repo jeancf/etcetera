@@ -73,17 +73,17 @@ def do_manage_file(config, etc_file):
     """
     # Check if file is in allowed original locations
     if not is_in_original_locations(config, etc_file):
-        print('ERROR: File is not in allowed original location')
+        print(col.FAIL + 'ERROR:' + col.ENDC + ' File is not in allowed original location')
         sys.exit(-1)
 
     # Check that file is not is blacklist
     if is_in_blacklist(config, etc_file):
-        print('ERROR: File is blacklisted directly or in a blacklisted location in etcetera.conf')
+        print(col.FAIL + 'ERROR:' + col.ENDC + ' File is blacklisted in etcetera.conf')
         sys.exit(-1)
 
     # Check that the file exists
     if not os.path.isfile(etc_file):
-        print('ERROR: File does not exist')
+        print(col.FAIL + 'ERROR:' + col.ENDC + ' File does not exist')
         sys.exit(-1)
 
     # Create file path in managed location if necessary
@@ -93,7 +93,7 @@ def do_manage_file(config, etc_file):
 
     # Check that file does not exist yet in managed location
     if os.path.isfile(managed_file):
-        print('ERROR: File already managed')
+        print(col.FAIL + 'ERROR:' + col.ENDC + ' File already managed')
         sys.exit(-1)
 
     # Move file to manage to managed path and create copies with .COMMIT and .ORIG (if required) extension
@@ -105,7 +105,7 @@ def do_manage_file(config, etc_file):
     # Create symlink to managed file in original location to replace  file to manage
     os.symlink(managed_file, etc_file)
 
-    print('SUCCESS: File saved and replaced by symlink')
+    print(col.OKGREEN + 'SUCCESS:' + col.ENDC + ' File saved and replaced by symlink')
 
 
 def do_unmanage_file(config, symlink):
