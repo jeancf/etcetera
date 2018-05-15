@@ -190,7 +190,7 @@ def do_commit_file(config, symlink, note):
 def do_revert_file(config, symlink):
     # Check if symlink is managed correctly
     if not is_managed(config, symlink):
-        print('Revert aborted.')
+        print(col.WARNING + 'Revert aborted.' + col.ENDC)
         sys.exit(-1)
 
     managed_file = os.path.join(config['MAIN']['MANAGED_LOCATION'] + symlink)
@@ -220,19 +220,19 @@ def do_revert_file(config, symlink):
 
     # Check if there are uncommitted changes
     if is_different(managed_file, commit_file):
-        print("\nWARNING: Some changes to the file are not committed.")
-        print("         If you revert now they will be overwritten.\n")
+        print(col.WARNING + "\nWARNING: Some changes to the file are not committed.")
+        print("         If you revert now they will be overwritten.\n" + col.ENDC)
 
-    choice = input('Select file version to revert to (1-' + str(i) + ', 0 to abort): ')
+    choice = input(col.BOLD + 'Select file version to revert to (1-' + str(i) + ', 0 to abort): ' + col.ENDC)
 
     try:
         num_choice = int(choice)
     except ValueError:
-        print('ERROR: invalid input')
+        print(col.FAIL + 'ERROR:' + col.ENDC + ' invalid input')
         sys.exit(-1)
 
     if num_choice == 0:
-        print('NOTICE: Aborted by user')
+        print(col.WARNING + 'NOTICE: Aborted by user' + col.ENDC)
         sys.exit(0)
     elif 0 < num_choice <= i:
         # Revert selected file
@@ -240,10 +240,10 @@ def do_revert_file(config, symlink):
         copy_file_with_stats(file_list[file_idx][0], managed_file)
 
     else:
-        print('ERROR: invalid input')
+        print(col.FAIL + 'ERROR:' + col.ENDC + ' invalid input')
         sys.exit(-1)
 
-    print('SUCCESS: selected version restored')
+    print(col.OKGREEN + 'SUCCESS:' + col.ENDC + ' selected version restored')
 
 
 def do_display_file_status(config, symlink):
