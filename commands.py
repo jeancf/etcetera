@@ -149,7 +149,7 @@ def do_commit_file(config, symlink, note):
     """
     # Check if symlink is managed correctly
     if not is_managed(config, symlink):
-        print('Commit aborted.')
+        print(col.WARNING + 'Commit aborted.' + col.ENDC)
         sys.exit(-1)
 
     timestamp = get_timestamp()
@@ -157,12 +157,12 @@ def do_commit_file(config, symlink, note):
     commit_file = managed_file + '.COMMIT'
     # Check if there are changes to commit
     if not is_different(managed_file, commit_file):
-        print("NOTICE: No unrecorded changes. Nothing to do.")
+        print(col.WARNING + "NOTICE:" + col.ENDC + " No unrecorded changes. Nothing to do.")
         sys.exit(-1)
 
     # Check if a note is required and provided
     if config['BEHAVIOR'].getboolean('COMMIT_NOTE_REQUIRED') and note is None:
-        print('ERROR: Configuration requires a note with every commit. Retry with --note "TEXT".')
+        print(col.FAIL + 'ERROR:' + col.ENDC + ' Configuration requires a note with every commit. Retry with --note "TEXT".')
         sys.exit(-1)
 
     # Create the .COMMIT file
@@ -184,7 +184,7 @@ def do_commit_file(config, symlink, note):
         except FileNotFoundError:
             pass
 
-    print('SUCCESS: version committed')
+    print(col.OKGREEN + 'SUCCESS:' + col.ENDC + ' version committed')
 
 
 def do_revert_file(config, symlink):
