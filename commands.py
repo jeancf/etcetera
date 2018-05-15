@@ -188,6 +188,7 @@ def do_commit_file(config, symlink, note):
 
 
 def do_revert_file(config, symlink):
+    # TODO Add function documentation
     # FIXME can the first part of this not just be a call of do_display_status?
     # Check if symlink is managed correctly
     if not is_managed(config, symlink):
@@ -248,6 +249,7 @@ def do_revert_file(config, symlink):
 
 
 def do_display_file_status(config, symlink):
+    # TODO Add function documentation
     # Check if symlink is managed correctly
     if not is_managed(config, symlink):
         sys.exit(-1)
@@ -282,6 +284,7 @@ def do_display_file_status(config, symlink):
 
 
 def do_display_info(config):
+    # TODO Add function documentation
     # Config file location
     print('Location of config file:')
     print(col.BOLD + ' /etc/etcetera.conf' + col.ENDC)

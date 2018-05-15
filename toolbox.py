@@ -96,6 +96,7 @@ def is_managed(config, symlink):
 
 
 def copy_file_with_stats(source, destination):
+    # TODO Add function documentation
     shutil.copy2(source, destination)
     # Make sure file stats are identical as they are used for change detection
     shutil.copystat(source, destination)
