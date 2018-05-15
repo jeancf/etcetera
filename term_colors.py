@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-class TColors:
+class Colors:
     BOLD      = '\033[1m'
     OKBLUE    = '\033[94m'
     OKGREEN   = '\033[92m'

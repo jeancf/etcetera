@@ -25,6 +25,7 @@ import glob
 import stat
 import pwd
 import filecmp
+from term_colors import Colors as col
 
 CONST_TIMESTAMP_FORMAT_STRING = '_%Y-%m-%d_%H-%M-%S'
 
@@ -67,28 +68,28 @@ def is_managed(config, symlink):
     """
     # Check if symlink is in allowed original locations
     if not is_in_original_locations(config, symlink):
-        print('ERROR: File is not in an allowed original location')
+        print(col.FAIL + 'ERROR:' + col.ENDC + ' File is not in an allowed original location')
         return False
 
     # Check that the file is a symlink
     if not os.path.islink(symlink):
-        print('ERROR: Argument is not a symlink')
+        print(col.FAIL + 'ERROR:' + col.ENDC + ' Argument is not a symlink')
         return False
 
     # Check that the symlink points to the correct file in managed location
     managed_file = config['MAIN']['MANAGED_LOCATION'].rstrip('/') + symlink
     if os.readlink(symlink) != managed_file:
-        print('ERROR: Symlink does not point to correct managed file')
+        print(col.FAIL + 'ERROR:' + col.ENDC + ' Symlink does not point to correct managed file')
         return False
 
     # Check that the corresponding managed file exists
     if not os.path.isfile(managed_file):
-        print('ERROR: Shadow file does not exit')
+        print(col.FAIL + 'ERROR:' + col.ENDC + ' Shadow file does not exit')
         return False
 
     # Check that the corresponding .COMMIT is present
     if not os.path.isfile(managed_file):
-        print('ERROR: Commit file does not exit')
+        print(col.FAIL + 'ERROR:' + col.ENDC + ' Commit file does not exit')
         return False
 
     return True

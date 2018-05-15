@@ -21,7 +21,7 @@
 import sys
 import os
 import glob
-from colors import TColors as col
+from term_colors import Colors as col
 
 # Add path to etcetera modules
 sys.path.append('/usr/lib/etcetera')
@@ -117,7 +117,7 @@ def do_unmanage_file(config, symlink):
     """
     # Check if symlink is in allowed original locations
     if not is_managed(config, symlink):
-        print('Unmanage operation aborted.')
+        print(col.WARNING + 'Unmanage operation aborted.' + col.ENDC)
         sys.exit(-1)
 
     managed_file = config['MAIN']['MANAGED_LOCATION'].rstrip('/') + symlink
@@ -136,7 +136,7 @@ def do_unmanage_file(config, symlink):
 
     # Delete potential empty folders after removal of files
     remove_empty_directories(config, os.path.dirname(managed_file))
-    print('SUCCESS: File restored in original location and managed content deleted')
+    print(col.OKGREEN + 'SUCCESS:' + col.ENDC + ' File restored in original location and managed content deleted')
 
 
 def do_commit_file(config, symlink, note):
