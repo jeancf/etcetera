@@ -56,10 +56,10 @@ def do_display_list(config, show=True):
                     if os.readlink(origin) == managed_file:
                         n += 1
                         if show:
-                            print(' ' + origin)
+                            print(' ' + col.BOLD + origin + col.ENDC)
 
     if show:
-        print('Number of files managed: ' + str(n))
+        print('Number of files managed: ' + col.BOLD + str(n) + col.ENDC)
 
     return n
 
