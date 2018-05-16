@@ -96,7 +96,12 @@ def is_managed(config, symlink):
 
 
 def copy_file_with_stats(source, destination):
-    # TODO Add function documentation
+    """
+    Copy file including user:group and mode
+    :param source:      Source path and file name
+    :param destination: Destination path
+    :return:
+    """
     shutil.copy2(source, destination)
     # Make sure file stats are identical as they are used for change detection
     shutil.copystat(source, destination)

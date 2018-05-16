@@ -188,7 +188,12 @@ def do_commit_file(config, symlink, note):
 
 
 def do_revert_file(config, symlink):
-    # TODO Add function documentation
+    """
+    Display the list of commits of the given file for the user to choose. Replace the managed file with the
+    version chosen by the user.
+    :param config:   Configuration object
+    :param symlink:  Path to the original location of the managed file
+    """
     # FIXME can the first part of this not just be a call of do_display_status?
     # Check if symlink is managed correctly
     if not is_managed(config, symlink):
@@ -249,7 +254,12 @@ def do_revert_file(config, symlink):
 
 
 def do_display_file_status(config, symlink):
-    # TODO Add function documentation
+    """
+    Display the list of commits for the given file. Informs the user if there are some changes to the managed file
+    that are not committed
+    :param config:   Configuration object
+    :param symlink:  Path to the original location of the managed file
+    """
     # Check if symlink is managed correctly
     if not is_managed(config, symlink):
         sys.exit(-1)
@@ -284,7 +294,10 @@ def do_display_file_status(config, symlink):
 
 
 def do_display_info(config):
-    # TODO Add function documentation
+    """
+    Display some info related to the configuration and the status of etcetera
+    :param config:   Configuration object
+    """
     # Config file location
     print('Location of config file:')
     print(col.BOLD + ' /etc/etcetera.conf' + col.ENDC)
