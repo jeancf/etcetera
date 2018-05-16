@@ -66,6 +66,10 @@ do_install()
     chown root:root /usr/lib/etcetera/toolbox.py
     chmod 640 /usr/lib/etcetera/toolbox.py
 
+    cp term_colors.py /usr/lib/etcetera
+    chown root:root /usr/lib/etcetera/term_colors.py
+    chmod 640 /usr/lib/etcetera/term_colors.py
+
     cp etcetera /usr/bin
     chown root:root /usr/bin/etcetera
     chmod 755 /usr/bin/etcetera

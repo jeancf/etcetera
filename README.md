@@ -63,10 +63,11 @@ locations on your system:
 |---------------------|-------------------------------|------|
 | `etcetera`          | `/usr/bin`                    | 755  |
 | `parser.py`         | `/usr/lib/etcetera`           | 755  |
-| `commands.py`       | `/usr/lib/etcetera`           | 644  |
-| `toolbox.py`        | `/usr/lib/etcetera`           | 644  |
-| `etcetera-logo.png` | `/usr/share/etcetera`         | 644  |
-| `etcetera.conf`     | `/etc/etcetera/etcetera.conf` | 644  |
+| `commands.py`       | `/usr/lib/etcetera`           | 640  |
+| `toolbox.py`        | `/usr/lib/etcetera`           | 640  |
+| `term_colors.py`    | `/usr/lib/etcetera`           | 640  |
+| `etcetera-logo.png` | `/usr/share/etcetera`         | 640  |
+| `etcetera.conf`     | `/etc/etcetera/etcetera.conf` | 640  |
 
 It makes sure they are all owned by `root:root` and have the correct mode set.
 
