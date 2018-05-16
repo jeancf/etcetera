@@ -158,7 +158,13 @@ If the file is reverted these changes will be lost
 
 ## Later ##
 
-### Colored output ###
+### possibility to commit files with relative path to one of the managed locations ###
+
+* pass the symlink argument to function that returns the full path
+
+### Review command-line parameters syntax ###
+
+* Implement FILENAME with parent
 
 ### --manage FILENAME|FOLDER ###
 
@@ -168,13 +174,11 @@ Support specifying directories instead of individual files (e.g. `/etc/ssh`)
 
 * Support specifying directories instead of individual files (e.g. `/etc/ssh`)
 
-### Confirmation option for destructive changes ###
-
-Are you sure (y/N) for --unmanage
-
 ### Logging to journal ###
 
 Log to systemd journal using systemd.journal python module
+
+### Revise output of --info ###
 
 ### Monitor file changes ###
 
@@ -192,14 +196,6 @@ Start with toolbox functions
 
 It may be difficult to handle a subsequent call to --manage. What to do with .ORIG?
 
-### Security check ###
-
-Avoid that a rogue file is introduced as a replacement for a config file
-
-### possibility to commit files with relative path ###
-
-* pass the symlink argument to function that returns the full path
-
 ### Hardening ###
 
 #### Avoid config file breakage ####
@@ -216,9 +212,3 @@ to avoid failing midway due to a typo in the config file
 
 * Verify that no symlinks are dead
 * Handle case where a location has been removed from MANAGED_LOCATIONS
-
-### Review command-line parameters syntax ###
-
-* Implement FILENAME with parent
-
-### Revise output of --info ###
