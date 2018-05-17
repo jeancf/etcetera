@@ -30,7 +30,7 @@ if os.geteuid() != 0:
     print('ERROR: You do not have elevated privileges. Try "sudo etcetera"')
     sys.exit(-1)
 
-CONFIG_FILE_LOCATION = './etcetera.conf'
+CONFIG_FILE_LOCATION = '/etc/etcetera.conf'
 
 # Add path to etcetera modules
 sys.path.append('/usr/lib/etcetera')

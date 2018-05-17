@@ -26,3 +26,12 @@ class Colors:
     FAIL      = '\033[91m'
     UNDERLINE = '\033[4m'
     ENDC      = '\033[0m'
+
+class NoColors:
+    BOLD      = ''
+    OKBLUE    = ''
+    OKGREEN   = ''
+    WARNING   = ''
+    FAIL      = ''
+    UNDERLINE = ''
+    ENDC      = ''

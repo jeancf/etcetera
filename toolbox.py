@@ -25,7 +25,9 @@ import glob
 import stat
 import pwd
 import filecmp
-from term_colors import Colors as col
+from term_colors import Colors
+from term_colors import NoColors
+
 
 CONST_TIMESTAMP_FORMAT_STRING = '_%Y-%m-%d_%H-%M-%S'
 
@@ -147,8 +149,9 @@ def get_timestring_from_timestamp(timestamp):
 
 def get_file_list(config, symlink):
     """
-    Returns list of tuples with filename, a string with date and time from timestamp, owner, mode
-    :param:  timestamp created with get_timestamp()
+    Returns list of dicts with filename, a string with date and time from timestamp, user, group, mode
+    :param:  config: configuration object
+    :param:  symlink: path of the managed file
     :return: list of .COMMIT files and .ORIG file along with their timestamp formatted for display
     """
     managed_file = os.path.join(config['MAIN']['MANAGED_LOCATION'] + symlink)
@@ -163,33 +166,39 @@ def get_file_list(config, symlink):
     full_list = []
     i = 0
     for fn in file_list:
+        commit_dict = {}
         i += 1
+
+        commit_dict['name'] = fn
+
         # Get mode of file
-        mode = stat.filemode(os.stat(fn).st_mode)
+        commit_dict['mode'] = stat.filemode(os.stat(fn).st_mode)
 
         # Get owner
-        owner = pwd.getpwuid(os.stat('./etcetera').st_uid).pw_name + \
-                ":" + \
-                pwd.getpwuid(os.stat('./etcetera').st_gid).pw_name
+        commit_dict['user'] = pwd.getpwuid(os.stat(fn).st_uid).pw_name
+        commit_dict['group'] = pwd.getpwuid(os.stat(fn).st_gid).pw_name
 
         # Extract timestamp from file name and transform it into a printable string
-        timestring = get_timestring_from_timestamp(fn.split('.COMMIT', maxsplit=1)[1])
-        full_list.append((fn, timestring, owner, mode))
+        commit_dict['timestring'] = get_timestring_from_timestamp(fn.split('.COMMIT', maxsplit=1)[1])
+        full_list.append(commit_dict)
 
     # Add .ORIG file and date to the list if it exits
     if os.path.isfile(original_file):
+        commit_dict = {}
         i += 1
+
+        commit_dict['name'] = original_file
+
         # Get mode of file
-        mode = stat.filemode(os.stat(original_file).st_mode)
+        commit_dict['mode'] = stat.filemode(os.stat(original_file).st_mode)
 
         # Get owner
-        owner = pwd.getpwuid(os.stat('./etcetera').st_uid).pw_name + \
-                ":" + \
-                pwd.getpwuid(os.stat('./etcetera').st_gid).pw_name
+        commit_dict['user'] = pwd.getpwuid(os.stat(original_file).st_uid).pw_name
+        commit_dict['group'] = pwd.getpwuid(os.stat(original_file).st_gid).pw_name
 
         # Convert the mtime from file stat into time tuple then into readable string
-        timestring = time.asctime(time.localtime(os.stat(original_file).st_mtime))
-        full_list.append((original_file, timestring, owner, mode))
+        commit_dict['timestring'] = time.asctime(time.localtime(os.stat(original_file).st_mtime))
+        full_list.append(commit_dict)
 
     return full_list
 
@@ -197,8 +206,8 @@ def get_file_list(config, symlink):
 def is_different(file1, file2):
     """
     Find out if there are differences between stats of 2 files
-    :param file1:
-    :param file2:
+    :param file1: first file to compare
+    :param file2: second file to compare
     :return: True is any difference is found
     """
     result = True
@@ -212,3 +221,19 @@ def is_different(file1, file2):
         result = False
 
     return result
+
+
+def get_colors(config):
+    """
+    returns the color object corresponding to the parameter in config file
+    :param    config: configuration object
+    :return:  color object
+    """
+    col = None
+
+    if config['BEHAVIOR'].getboolean('USE_COLORS') is True:
+        col = Colors()
+    else:
+        col = NoColors()
+
+    return col

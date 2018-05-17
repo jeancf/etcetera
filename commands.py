@@ -21,7 +21,6 @@
 import sys
 import os
 import glob
-from term_colors import Colors as col
 
 # Add path to etcetera modules
 sys.path.append('/usr/lib/etcetera')
@@ -36,6 +35,9 @@ def do_display_list(config, show=True):
     :param show: actually print list
     :return: number of files managed
     """
+
+    # Get color object for terminal output
+    col = get_colors(config)
 
     if show:
         print('Files managed by etcetera:')
@@ -71,6 +73,9 @@ def do_manage_file(config, etc_file):
     :param etc_file: Full path + name of the file to take over
     :return:
     """
+    # Get color object for terminal output
+    col = get_colors(config)
+
     # Check if file is in allowed original locations
     if not is_in_original_locations(config, etc_file):
         print(col.FAIL + 'ERROR:' + col.ENDC + ' File is not in allowed original location')
@@ -115,6 +120,10 @@ def do_unmanage_file(config, symlink):
     :param symlink:       Full path + name of the symlink to replace with file
     :return:
     """
+
+    # Get color object for terminal output
+    col = get_colors(config)
+
     # Check if symlink is in allowed original locations
     if not is_managed(config, symlink):
         print(col.WARNING + 'Unmanage operation aborted.' + col.ENDC)
@@ -147,6 +156,9 @@ def do_commit_file(config, symlink, note):
     :param note:     Text to store in .COMMENT file
     :return:
     """
+    # Get color object for terminal output
+    col = get_colors(config)
+
     # Check if symlink is managed correctly
     if not is_managed(config, symlink):
         print(col.WARNING + 'Commit aborted.' + col.ENDC)
@@ -161,9 +173,9 @@ def do_commit_file(config, symlink, note):
         sys.exit(-1)
 
     # Check if a note is required and provided
-    if config['BEHAVIOR'].getboolean('COMMIT_NOTE_REQUIRED') and note is None:
+    if (config['BEHAVIOR'].getboolean('COMMIT_NOTE_REQUIRED') is True) and (note is None):
         print(col.FAIL + 'ERROR:' + col.ENDC + ' Configuration requires a note with every commit. Retry with --note "TEXT".')
-        sys.exit(-1)
+        sys.exit(0)
 
     # Create the .COMMIT file
     copy_file_with_stats(managed_file, commit_file + timestamp)
@@ -194,11 +206,14 @@ def do_revert_file(config, symlink):
     :param config:   Configuration object
     :param symlink:  Path to the original location of the managed file
     """
-    # FIXME can the first part of this not just be a call of do_display_status?
+
+    # Get color object for terminal output
+    col = get_colors(config)
+
     # Check if symlink is managed correctly
     if not is_managed(config, symlink):
         print(col.WARNING + 'Revert aborted.' + col.ENDC)
-        sys.exit(-1)
+        sys.exit(0)
 
     managed_file = os.path.join(config['MAIN']['MANAGED_LOCATION'] + symlink)
     commit_file = managed_file + '.COMMIT'
@@ -206,24 +221,50 @@ def do_revert_file(config, symlink):
     # Display list of commits
     print('File was committed on these dates:')
     file_list = get_file_list(config, symlink)
+
+    # Define length of user and group strings for alignment
+    len_user = 0
+    len_group = 0
+    for f in file_list:
+        if len(f['user']) > len_user:
+            len_user = len(f['user'])
+        if len(f['group']) > len_group:
+            len_group = len(f['group'])
+
+    # Assemble format strings
+    ufs = '{:' + str(len_user) + '}'
+    gfs = '{:' + str(len_group) + '}'
+
     i = len(file_list) + 1
     for f in file_list:
         i -= 1
-        if '.ORIG' in f[0]:
-            # Print original file datestamp
-            print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' | ' + f[2] + ' | ' + f[3] + ' | (original file)')
+        if '.ORIG' in f['name']:
+            # Print original file details
+            print(' {:>4}'.format(str(i)) + ' | '
+                  + f['timestring'] + ' | '
+                  + ufs.format(f['user']) + ' '
+                  + gfs.format(f['group']) + ' | '
+                  + f['mode'] + ' | '
+                  + '(original file)'
+                  )
 
         else:
-            # Print commit file timestamp and related note
+            # Print details of commit
             note = ''
             try:
-                nf = open(f[0].replace('.COMMIT', '.COMMENT'), 'r')
+                nf = open(f['name'].replace('.COMMIT', '.COMMENT'), 'r')
                 note = nf.readline()
             except FileNotFoundError:
                 pass
             finally:
                 nf.close()
-            print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' | ' + f[2] + ' | ' + f[3] + ' | ' + note)
+            print(' {:>4}'.format(str(i)) + ' | '
+                  + f['timestring'] + ' | '
+                  + ufs.format(f['user']) + ' '
+                  + gfs.format(f['group']) + ' | '
+                  + f['mode'] + ' | '
+                  + note
+                  )
 
     # Check if there are uncommitted changes
     if is_different(managed_file, commit_file):
@@ -236,7 +277,7 @@ def do_revert_file(config, symlink):
         num_choice = int(choice)
     except ValueError:
         print(col.FAIL + 'ERROR:' + col.ENDC + ' invalid input')
-        sys.exit(-1)
+        sys.exit(0)
 
     if num_choice == 0:
         print(col.WARNING + 'NOTICE: Aborted by user' + col.ENDC)
@@ -244,11 +285,11 @@ def do_revert_file(config, symlink):
     elif 0 < num_choice <= i:
         # Revert selected file
         file_idx = len(file_list) - num_choice
-        copy_file_with_stats(file_list[file_idx][0], managed_file)
+        copy_file_with_stats(file_list[file_idx]['name'], managed_file)
 
     else:
         print(col.FAIL + 'ERROR:' + col.ENDC + ' invalid input')
-        sys.exit(-1)
+        sys.exit(0)
 
     print(col.OKGREEN + 'SUCCESS:' + col.ENDC + ' selected version restored')
 
@@ -260,37 +301,70 @@ def do_display_file_status(config, symlink):
     :param config:   Configuration object
     :param symlink:  Path to the original location of the managed file
     """
+
+    # Get color object for terminal output
+    col = get_colors(config)
+
     # Check if symlink is managed correctly
     if not is_managed(config, symlink):
-        sys.exit(-1)
+        sys.exit(0)
 
     managed_file = config['MAIN']['MANAGED_LOCATION'].rstrip('/') + symlink
     commit_file = managed_file + '.COMMIT'
 
-    # List save dates of .COMMIT and .ORIG files
+    # Display list of commits
     print('File was committed on these dates:')
     file_list = get_file_list(config, symlink)
+
+    # Define length of user and group strings for alignment
+    len_user = 0
+    len_group = 0
+    for f in file_list:
+        if len(f['user']) > len_user:
+            len_user = len(f['user'])
+        if len(f['group']) > len_group:
+            len_group = len(f['group'])
+
+    # Assemble format strings
+    ufs = '{:' + str(len_user) + '}'
+    gfs = '{:' + str(len_group) + '}'
+
     i = len(file_list) + 1
     for f in file_list:
         i -= 1
-        if '.ORIG' in f[0]:
-            # Print original file datestamp
-            print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' | ' + f[2] + ' | ' + f[3] + ' | (original file)')
+        if '.ORIG' in f['name']:
+            # Print original file details
+            print(' {:>4}'.format(str(i)) + ' | '
+                  + f['timestring'] + ' | '
+                  + ufs.format(f['user']) + ' '
+                  + gfs.format(f['group']) + ' | '
+                  + f['mode'] + ' | '
+                  + '(original file)'
+                  )
 
         else:
-            # Print commit file timestamp and related note
+            # Print details of commit
+            note = ''
             try:
-                with open(f[0].replace('.COMMIT', '.COMMENT'), 'r') as nf:
-                    note = nf.readline()
+                nf = open(f['name'].replace('.COMMIT', '.COMMENT'), 'r')
+                note = nf.readline()
             except FileNotFoundError:
-                note = ''
-            print(' {:>4}'.format(str(i)) + ' | ' + f[1] + ' | ' + f[2] + ' | ' + f[3] + ' | ' + note)
+                pass
+            finally:
+                nf.close()
+            print(' {:>4}'.format(str(i)) + ' | '
+                  + f['timestring'] + ' | '
+                  + ufs.format(f['user']) + ' '
+                  + gfs.format(f['group']) + ' | '
+                  + f['mode'] + ' | '
+                  + note
+                  )
 
     # Check if there are uncommitted changes
     if is_different(managed_file, commit_file):
-        print(col.WARNING + "\nSome changes to the file are not committed" + col.WARNING)
+        print(col.WARNING + "Some changes to the file are not committed\n" + col.ENDC)
     else:
-        print("\nFile is the same as last commit")
+        print("File is the same as last commit\n")
 
 
 def do_display_info(config):
@@ -298,6 +372,9 @@ def do_display_info(config):
     Display some info related to the configuration and the status of etcetera
     :param config:   Configuration object
     """
+    # Get color object for terminal output
+    col = get_colors(config)
+
     # Config file location
     print('Location of config file:')
     print(col.BOLD + ' /etc/etcetera.conf' + col.ENDC)
@@ -311,7 +388,7 @@ def do_display_info(config):
             print(' ' + col.BOLD + loc + col.ENDC)
 
     # Shadow location
-    print(col.UNDERLINE + 'Location of managed files:' + col.ENDC)
+    print('Location of managed files:')
     print(' ' + col.BOLD + str(config['MAIN']['MANAGED_LOCATION']) + col.ENDC)
 
     # Number of managed files

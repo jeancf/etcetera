@@ -95,6 +95,8 @@ do_remove()
     rm /usr/lib/etcetera/parser.py
     rm /usr/lib/etcetera/commands.py
     rm /usr/lib/etcetera/toolbox.py
+    rm /usr/lib/etcetera/term_colors.py
+
     if [ -d /usr/lib/etcetera/__pycache__ ]; then
         rm /usr/lib/etcetera/__pycache__ -r
     fi
