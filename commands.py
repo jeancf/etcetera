@@ -268,10 +268,10 @@ def do_revert_file(config, symlink):
 
     # Check if there are uncommitted changes
     if is_different(managed_file, commit_file):
-        print(col.WARNING + "\nWARNING: Some changes to the file are not committed.")
+        print(col.WARNING + "WARNING: Some changes to the file are not committed.")
         print("         If you revert now they will be overwritten.\n" + col.ENDC)
 
-    choice = input(col.BOLD + 'Select file version to revert to (1-' + str(i) + ', 0 to abort): ' + col.ENDC)
+    choice = input(col.BOLD + 'Select file version to revert to (1-' + str(len(file_list)) + ', 0 to abort): ' + col.ENDC)
 
     try:
         num_choice = int(choice)

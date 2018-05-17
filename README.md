@@ -28,9 +28,10 @@ installation defaults.
 
 * Strictly define locations where files can be managed by Etcetera
 * Select which files to manage
-* Commit changes to a managed file with associated note
+* Commit changes made to a managed file with associated note
 * Revert changes by selecting a previous commit
 * Restore managed file back to the original location
+* Colorized output (off by default)
 
 ## Download and install ##
 
@@ -82,7 +83,7 @@ is short...).
 
 #### Initialization ####
 
-Etcetera needs to be initialized fist with the command:
+The management of a given file needs to be initialized first with the command:
 
     $ etcetera --manage /etc/ntp.conf
     SUCCESS: File saved and replaced by symlink
@@ -112,12 +113,12 @@ To verify at any point if the file is managed by etcetera, run:
 
     $ etcetera --status /etc/ntp.conf
     File was committed on these dates:
-        1 | Mon Apr 24 20:57:22 2017 | (original file)
-    
-    There are no uncommited changes to the file
+        1 | Sat Jan 20 14:43:03 2018 | root root | -rw-r--r-- | (original file)
+    File is the same as last commit
 
 This states that the original version of file is now preserved and that the
-current version of the file is identical to the preserved version.
+current version of the file is identical to the preserved version. User, group
+and mode is displayed for each version
 
 #### Modifications of the content of file ####
 
@@ -134,11 +135,10 @@ If the status command is executed again, the output is slightly different:
 
     $ etcetera --status /etc/ntp.conf
     File was committed on these dates:
-        1 | Mon Apr 24 20:57:22 2017 | (original file)
-
+        1 | Sat Jan 20 14:43:03 2018 | root root | -rw-r--r-- | (original file)
     Some changes to the file are not committed
-    
-The last sentence informs that there are now some differences between the 
+
+The last sentence informs that there are now some differences between the
 current version of the file and the last preserved version.
 
 #### Preserving the current version of the file ####
@@ -157,10 +157,9 @@ The status command will show what changed:
 
     $ etcetera --status /etc/ntp.conf
     File was committed on these dates:
-        2 | Sat Jan 20 14:10:59 2018 | Config for Europe
-        1 | Mon Apr 24 20:57:22 2017 | (original file)
-    
-    There are no uncommited changes to the file
+        2 | Thu May 17 22:41:04 2018 | root root | -rw-r--r-- | Config for Europe
+        1 | Sat Jan 20 14:43:03 2018 | root root | -rw-r--r-- | (original file)
+    File is the same as last commit
 
 If the total number of saved files exceeds the maximum permitted
 (`COMMIT_MAX_SAVES = 5` by default in `/etc/etcetera.conf`), the oldest
@@ -173,18 +172,17 @@ in this case the original file, execute:
 
     $ etcetera --revert /etc/ntp.conf
     File was committed on these dates:
-        2 | Sat Jan 20 14:10:59 2018 | Config for Europe
-        1 | Mon Apr 24 20:57:22 2017 | (original file)
-    Select file version to revert to (1-2, 0 to abort): 2
+        2 | Thu May 17 22:41:04 2018 | root root | -rw-r--r-- | Config for Europe
+        1 | Sat Jan 20 14:43:03 2018 | root root | -rw-r--r-- | (original file)
+    Select file version to revert to (1-1, 0 to abort): 1
     SUCCESS: selected version restored
 
 The status command will show:
 
     $ etcetera --status /etc/ntp.conf
     File was committed on these dates:
-        2 | Sat Jan 20 14:10:59 2018 | Config for Europe
-        1 | Mon Apr 24 20:57:22 2017 | (original file)
-    
+        2 | Thu May 17 22:41:04 2018 | root root | -rw-r--r-- | Config for Europe
+        1 | Sat Jan 20 14:43:03 2018 | root root | -rw-r--r-- | (original file)
     Some changes to the file are not committed
 
 With the last sentence confirming that the current version (now identical to 
