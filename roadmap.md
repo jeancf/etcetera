@@ -138,29 +138,51 @@ Capture and save a comment string to display when showing list of commits
 
 So that older commits always keep the same order number (original file = 1)
 
-### Revise output of --info ###
+**DONE**
 
-## Later ##
+### gain elevated privileges if not already available
 
-### Colored output ###
+To avoid having to type `sudo` at every invocation
+
+**DONE**
 
 ### display user/group/mode in commit list
 
-### --manage FILENAME ###
+**DONE**
+
+### When reverting, mention if the original file has uncommited changes
+
+If the file is reverted these changes will be lost
+
+**DONE**
+
+## Later ##
+
+### possibility to commit files with relative path to one of the managed locations ###
+
+* pass the symlink argument to function that returns the full path
+
+### Review command-line parameters syntax ###
+
+* Implement FILENAME with parent
+
+### --manage FILENAME|FOLDER ###
 
 Support specifying directories instead of individual files (e.g. `/etc/ssh`)
 
-### --unmanage FILENAME ###
+### --unmanage FILENAME|FOLDER ###
 
 * Support specifying directories instead of individual files (e.g. `/etc/ssh`)
-
-### Monitor file changes ###
-
-Use pyinotify module to monitor file changes and auto-commit
 
 ### Logging to journal ###
 
 Log to systemd journal using systemd.journal python module
+
+### Revise output of --info ###
+
+### Monitor file changes ###
+
+Use pyinotify module to monitor file changes and auto-commit
 
 ### implement doctest ###
 
@@ -168,32 +190,17 @@ Start with toolbox functions
 
 ### Option to keep or delete shadow files after call to --unmanage ####
 
-It may be difficult to handle a subsequent call to --manage. What to do with .ORIG?
-
     # Delete all shadow files after restoration into original location when calling --unmanage (true/false)
     Default is false
     KEEP_SHADOWS_AFTER_UNMANAGE = false
 
-### Confirmation option for destructive changes ###
-
-Are you sure (y/N) for:
-
-* --revert if uncommitted changes exist in file
-* --unmanage
-
-### Security check ###
-
-Avoid that a rogue file is introduced as a replacement for a config file
-
-### possibility to commit files with relative path ###
-
-* pass the symlink argument to function that returns the full path
+It may be difficult to handle a subsequent call to --manage. What to do with .ORIG?
 
 ### Hardening ###
 
 #### Avoid config file breakage ####
 
-Access and store config file variable at the beginning of the execution of a command
+Access and verify config file variable at the beginning of the execution of a command
 to avoid failing midway due to a typo in the config file
 
 #### Disallow saving in some locations ####
@@ -205,7 +212,3 @@ to avoid failing midway due to a typo in the config file
 
 * Verify that no symlinks are dead
 * Handle case where a location has been removed from MANAGED_LOCATIONS
-
-### Review command-line parameters syntax ###
-
-* Implement FILENAME with parent (?)

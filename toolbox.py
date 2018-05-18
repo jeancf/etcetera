@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Library of commands and support functions
+# Library of support functions
 
 """
     Copyright (C) 2018  Jean-Christophe Francois
@@ -23,7 +23,11 @@ import time
 import shutil
 import glob
 import stat
+import pwd
 import filecmp
+from term_colors import Colors
+from term_colors import NoColors
+
 
 CONST_TIMESTAMP_FORMAT_STRING = '_%Y-%m-%d_%H-%M-%S'
 
@@ -66,34 +70,40 @@ def is_managed(config, symlink):
     """
     # Check if symlink is in allowed original locations
     if not is_in_original_locations(config, symlink):
-        print('ERROR: File is not in an allowed original location')
+        print(col.FAIL + 'ERROR:' + col.ENDC + ' File is not in an allowed original location')
         return False
 
     # Check that the file is a symlink
     if not os.path.islink(symlink):
-        print('ERROR: Argument is not a symlink')
+        print(col.FAIL + 'ERROR:' + col.ENDC + ' Argument is not a symlink')
         return False
 
     # Check that the symlink points to the correct file in managed location
     managed_file = config['MAIN']['MANAGED_LOCATION'].rstrip('/') + symlink
     if os.readlink(symlink) != managed_file:
-        print('ERROR: Symlink does not point to correct managed file')
+        print(col.FAIL + 'ERROR:' + col.ENDC + ' Symlink does not point to correct managed file')
         return False
 
     # Check that the corresponding managed file exists
     if not os.path.isfile(managed_file):
-        print('ERROR: Shadow file does not exit')
+        print(col.FAIL + 'ERROR:' + col.ENDC + ' Shadow file does not exit')
         return False
 
     # Check that the corresponding .COMMIT is present
     if not os.path.isfile(managed_file):
-        print('ERROR: Commit file does not exit')
+        print(col.FAIL + 'ERROR:' + col.ENDC + ' Commit file does not exit')
         return False
 
     return True
 
 
 def copy_file_with_stats(source, destination):
+    """
+    Copy file including user:group and mode
+    :param source:      Source path and file name
+    :param destination: Destination path
+    :return:
+    """
     shutil.copy2(source, destination)
     # Make sure file stats are identical as they are used for change detection
     shutil.copystat(source, destination)
@@ -139,8 +149,9 @@ def get_timestring_from_timestamp(timestamp):
 
 def get_file_list(config, symlink):
     """
-    Returns  string with date and time from timestamp e.g. "Fri Jan  5 10:56:22 2018"
-    :param:  timestamp created with get_timestamp()
+    Returns list of dicts with filename, a string with date and time from timestamp, user, group, mode
+    :param:  config: configuration object
+    :param:  symlink: path of the managed file
     :return: list of .COMMIT files and .ORIG file along with their timestamp formatted for display
     """
     managed_file = os.path.join(config['MAIN']['MANAGED_LOCATION'] + symlink)
@@ -155,17 +166,39 @@ def get_file_list(config, symlink):
     full_list = []
     i = 0
     for fn in file_list:
+        commit_dict = {}
         i += 1
+
+        commit_dict['name'] = fn
+
+        # Get mode of file
+        commit_dict['mode'] = stat.filemode(os.stat(fn).st_mode)
+
+        # Get owner
+        commit_dict['user'] = pwd.getpwuid(os.stat(fn).st_uid).pw_name
+        commit_dict['group'] = pwd.getpwuid(os.stat(fn).st_gid).pw_name
+
         # Extract timestamp from file name and transform it into a printable string
-        timestring = get_timestring_from_timestamp(fn.split('.COMMIT', maxsplit=1)[1])
-        full_list.append((fn, timestring))
+        commit_dict['timestring'] = get_timestring_from_timestamp(fn.split('.COMMIT', maxsplit=1)[1])
+        full_list.append(commit_dict)
 
     # Add .ORIG file and date to the list if it exits
     if os.path.isfile(original_file):
+        commit_dict = {}
         i += 1
+
+        commit_dict['name'] = original_file
+
+        # Get mode of file
+        commit_dict['mode'] = stat.filemode(os.stat(original_file).st_mode)
+
+        # Get owner
+        commit_dict['user'] = pwd.getpwuid(os.stat(original_file).st_uid).pw_name
+        commit_dict['group'] = pwd.getpwuid(os.stat(original_file).st_gid).pw_name
+
         # Convert the mtime from file stat into time tuple then into readable string
-        timestring = time.asctime(time.localtime(os.stat(original_file).st_mtime))
-        full_list.append((original_file, timestring))
+        commit_dict['timestring'] = time.asctime(time.localtime(os.stat(original_file).st_mtime))
+        full_list.append(commit_dict)
 
     return full_list
 
@@ -173,18 +206,34 @@ def get_file_list(config, symlink):
 def is_different(file1, file2):
     """
     Find out if there are differences between stats of 2 files
-    :param file1:
-    :param file2:
+    :param file1: first file to compare
+    :param file2: second file to compare
     :return: True is any difference is found
     """
     result = True
     file1_stat = os.stat(file1)
     file2_stat = os.stat(file2)
-    
+
     if filecmp.cmp(file1, file2, shallow=True) and \
-       stat.S_IMODE(file1_stat.st_mode) == stat.S_IMODE(file2_stat.st_mode) and \
-       file1_stat.st_uid == file2_stat.st_uid and \
-       file1_stat.st_gid == file2_stat.st_gid:
+            stat.S_IMODE(file1_stat.st_mode) == stat.S_IMODE(file2_stat.st_mode) and \
+            file1_stat.st_uid == file2_stat.st_uid and \
+            file1_stat.st_gid == file2_stat.st_gid:
         result = False
 
     return result
+
+
+def get_colors(config):
+    """
+    returns the color object corresponding to the parameter in config file
+    :param    config: configuration object
+    :return:  color object
+    """
+    col = None
+
+    if config['BEHAVIOR'].getboolean('USE_COLORS') is True:
+        col = Colors()
+    else:
+        col = NoColors()
+
+    return col

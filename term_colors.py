@@ -1,6 +1,5 @@
-#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
-# wrapper to gain elevated privileges
+# Escape codes for coloring output
 
 """
     Copyright (C) 2018  Jean-Christophe Francois
@@ -19,12 +18,20 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import sys
-import subprocess
+class Colors:
+    BOLD      = '\033[1m'
+    OKBLUE    = '\033[94m'
+    OKGREEN   = '\033[92m'
+    WARNING   = '\033[93m'
+    FAIL      = '\033[91m'
+    UNDERLINE = '\033[4m'
+    ENDC      = '\033[0m'
 
-command = ['sudo', '/usr/lib/etcetera/parser.py']
-
-for argument in sys.argv[1:]:
-    command.append(argument)
-
-subprocess.check_call(command)
+class NoColors:
+    BOLD      = ''
+    OKBLUE    = ''
+    OKGREEN   = ''
+    WARNING   = ''
+    FAIL      = ''
+    UNDERLINE = ''
+    ENDC      = ''

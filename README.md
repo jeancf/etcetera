@@ -28,9 +28,10 @@ installation defaults.
 
 * Strictly define locations where files can be managed by Etcetera
 * Select which files to manage
-* Commit changes to a managed file with associated note
+* Commit changes made to a managed file with associated note
 * Revert changes by selecting a previous commit
 * Restore managed file back to the original location
+* Colorized output (off by default)
 
 ## Download and install ##
 
@@ -59,12 +60,15 @@ To uninstall later, run:
 For information, the install script copies project files to the following
 locations on your system:
 
-| File            | Location                      | Mode |
-|-----------------|-------------------------------|------|
-| `etcetera`      | `/usr/bin`                    | 755  |
-| `commands.py`   | `/usr/share/etcetera`         | 644  |
-| `toolbox.py`    | `/usr/share/etcetera`         | 644  |
-| `etcetera.conf` | `/etc/etcetera/etcetera.conf` | 644  |
+| File                | Location                      | Mode |
+|---------------------|-------------------------------|------|
+| `etcetera`          | `/usr/bin`                    | 755  |
+| `parser.py`         | `/usr/lib/etcetera`           | 755  |
+| `commands.py`       | `/usr/lib/etcetera`           | 640  |
+| `toolbox.py`        | `/usr/lib/etcetera`           | 640  |
+| `term_colors.py`    | `/usr/lib/etcetera`           | 640  |
+| `etcetera-logo.png` | `/usr/share/etcetera`         | 640  |
+| `etcetera.conf`     | `/etc/etcetera/etcetera.conf` | 640  |
 
 It makes sure they are all owned by `root:root` and have the correct mode set.
 
@@ -79,9 +83,9 @@ is short...).
 
 #### Initialization ####
 
-Etcetera needs to be initialized fist with the command:
+The management of a given file needs to be initialized first with the command:
 
-    $ sudo etcetera --manage /etc/ntp.conf
+    $ etcetera --manage /etc/ntp.conf
     SUCCESS: File saved and replaced by symlink
 
 
@@ -96,7 +100,7 @@ privileges. One way to do it is to launch a terminal console and login as root
 (dangerous and discouraged) to execute Etcetera commands. The other (safe) is
 to invoke etcetera through `sudo` as in our example.
 * There are abbreviations for all commands. `--manage` can be replaced by `-m`.
-Please execute `sudo etcetera --help` for more details.
+Please execute `etcetera --help` for more details.
 * All Etcetera commands for which a file name must be provided require a full
 path to the file (i.e. starting from the root like `/etc/ntp.conf` and not 
 just `ntp.conf`).
@@ -107,14 +111,14 @@ default, only `/etc` is allowed but more locations can be added.
 
 To verify at any point if the file is managed by etcetera, run:
 
-    $ sudo etcetera --status /etc/ntp.conf
+    $ etcetera --status /etc/ntp.conf
     File was committed on these dates:
-        1 | Mon Apr 24 20:57:22 2017 | (original file)
-    
-    There are no uncommited changes to the file
+        1 | Sat Jan 20 14:43:03 2018 | root root | -rw-r--r-- | (original file)
+    File is the same as last commit
 
 This states that the original version of file is now preserved and that the
-current version of the file is identical to the preserved version.
+current version of the file is identical to the preserved version. User, group
+and mode is displayed for each version
 
 #### Modifications of the content of file ####
 
@@ -129,13 +133,12 @@ add `server europe.pool.ntp.org` as first server entry and save (CTRL+X / Y).
 
 If the status command is executed again, the output is slightly different:
 
-    $ sudo etcetera --status /etc/ntp.conf
+    $ etcetera --status /etc/ntp.conf
     File was committed on these dates:
-        1 | Mon Apr 24 20:57:22 2017 | (original file)
-
+        1 | Sat Jan 20 14:43:03 2018 | root root | -rw-r--r-- | (original file)
     Some changes to the file are not committed
-    
-The last sentence informs that there are now some differences between the 
+
+The last sentence informs that there are now some differences between the
 current version of the file and the last preserved version.
 
 #### Preserving the current version of the file ####
@@ -143,7 +146,7 @@ current version of the file and the last preserved version.
 To preserve this version of the file to be able to restore it at a later point
 in time:
 
-    $ sudo etcetera --commit /etc/ntp.conf --note "Config for Europe"
+    $ etcetera --commit /etc/ntp.conf --note "Config for Europe"
     SUCCESS: version committed
 
 The `--note` command allows to add a one-line description of what the changes
@@ -152,12 +155,11 @@ disabled by setting `COMMIT_NOTE_REQUIRED = false` in `/etc/etcetera.conf`.
 
 The status command will show what changed:
 
-    $ sudo etcetera --status /etc/ntp.conf
+    $ etcetera --status /etc/ntp.conf
     File was committed on these dates:
-        1 | Sat Jan 20 14:10:59 2018 | Config for Europe
-        2 | Mon Apr 24 20:57:22 2017 | (original file)
-    
-    There are no uncommited changes to the file
+        2 | Thu May 17 22:41:04 2018 | root root | -rw-r--r-- | Config for Europe
+        1 | Sat Jan 20 14:43:03 2018 | root root | -rw-r--r-- | (original file)
+    File is the same as last commit
 
 If the total number of saved files exceeds the maximum permitted
 (`COMMIT_MAX_SAVES = 5` by default in `/etc/etcetera.conf`), the oldest
@@ -168,20 +170,19 @@ committed version is deleted. The original file is preserved though.
 To replace the current version of the file by one that was saved earlier,
 in this case the original file, execute:
 
-    $ sudo etcetera --revert /etc/ntp.conf
+    $ etcetera --revert /etc/ntp.conf
     File was committed on these dates:
-        1 | Sat Jan 20 14:10:59 2018 | Config for Europe
-        2 | Mon Apr 24 20:57:22 2017 | (original file)
-    Select file version to revert to (1-2, 0 to abort): 2
+        2 | Thu May 17 22:41:04 2018 | root root | -rw-r--r-- | Config for Europe
+        1 | Sat Jan 20 14:43:03 2018 | root root | -rw-r--r-- | (original file)
+    Select file version to revert to (1-1, 0 to abort): 1
     SUCCESS: selected version restored
 
 The status command will show:
 
-    $ sudo etcetera --status /etc/ntp.conf
+    $ etcetera --status /etc/ntp.conf
     File was committed on these dates:
-        1 | Sat Jan 20 14:10:59 2018 | Config for Europe
-        2 | Mon Apr 24 20:57:22 2017 | (original file)
-    
+        2 | Thu May 17 22:41:04 2018 | root root | -rw-r--r-- | Config for Europe
+        1 | Sat Jan 20 14:43:03 2018 | root root | -rw-r--r-- | (original file)
     Some changes to the file are not committed
 
 With the last sentence confirming that the current version (now identical to 
@@ -190,7 +191,7 @@ configuration with the European server).
 
 #### List files managed by Etcetera ####
 
-    $ sudo etcetera --list
+    $ etcetera --list
     Files managed by etcetera:
      /etc/ntp.conf
     Number of files managed: 1
@@ -199,7 +200,7 @@ configuration with the European server).
 
 To return the file to the original location and delete all the commits, run:
 
-    $ sudo etcetera --unmanage /etc/ntp.conf
+    $ etcetera --unmanage /etc/ntp.conf
     SUCCESS: File restored in original location and managed content deleted
 
 The symlink is replaced by the file and if `UNMANAGE_RESTORE_ORIG = true` is
@@ -212,7 +213,7 @@ extension. In this case, `/etc/ntp.conf.orig` will appear alongside
 
 Use:
 
-    $ sudo etcetera --info
+    $ etcetera --info
     Location of config file:
      /etc/etcetera.conf
     Locations where files can be monitored:
