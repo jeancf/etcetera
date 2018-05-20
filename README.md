@@ -39,6 +39,10 @@ installation defaults.
 
 The `etcetera` package is available in the AUR.
 
+### Void Linux ###
+
+    xbps-install -S etcetera
+
 ### Manual installation ###
 
 Clone the project or download and unpack the zip file from github.
